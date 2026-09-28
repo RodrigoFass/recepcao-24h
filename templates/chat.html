@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block titulo %}Chat do hóspede{% endblock %}
+{% block conteudo %}
+<div class="chat-layout">
+  <aside class="cartao chat-lado">
+    <h2>Quem está escrevendo</h2>
+    <label class="campo">Telefone do hóspede
+      <select id="contato">
+        <option value="__novo" {{ 'selected' if not telefone }}>Novo contato…</option>
+        {% for grupo, itens in contatos.items() if itens %}
+        <optgroup label="{{ grupo }}">
+          {% for tel, rotulo in itens %}
+          <option value="{{ tel }}" {{ 'selected' if tel == telefone }}>{{ tel }} — {{ rotulo }}</option>
+          {% endfor %}
+        </optgroup>
+        {% endfor %}
+        {% if telefone and not telefone_listado %}
+        <option value="{{ telefone }}" selected>{{ telefone }}</option>
+        {% endif %}
+      </select>
+    </label>
+    <label class="campo" id="caixa-novo">Número do novo contato
+      <input id="tel-novo" inputmode="tel" autocomplete="off">
+    </label>
+    <p class="suave pequeno">O chat simula o WhatsApp do hóspede. Cada hotel tem suas próprias conversas, mesmo com o
+      mesmo telefone.</p>
+
+    <h3>Perguntas rápidas</h3>
+    <div class="chips">
+      {% for s in sugestoes %}<button type="button" class="chip" data-texto="{{ s }}">{{ s }}</button>{% endfor %}
+    </div>
+  </aside>
+
+  <section class="celular" aria-label="Conversa">
+    <div class="celular-topo">
+      <div class="celular-titulo">
+        <strong>{{ hotel.nome }}</strong>
+        <small id="info-hospede">&nbsp;</small>
+      </div>
+      <span id="status" class="status-conversa">…</span>
+    </div>
+    <div id="mensagens" class="mensagens" aria-live="polite"></div>
+    <form id="form-msg" class="composer" autocomplete="off">
+      <input id="texto" placeholder="Digite uma mensagem" aria-label="Mensagem">
+      <button class="botao">Enviar</button>
+    </form>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>window.HOTEL = {{ hotel.slug|tojson }};</script>
+<script src="/static/chat.js"></script>
+{% endblock %}

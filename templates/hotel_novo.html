@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block titulo %}Novo hotel{% endblock %}
+{% macro v(chave) %}{{ valores.get(chave, '') }}{% endmacro %}
+{% macro marcado(chave) %}{{ 'checked' if valores.get(chave) in ('1', 'on', 'true') }}{% endmacro %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>Cadastrar hotel (M0)</h1>
+    <p class="suave">Preencha uma vez: os dados viram a base do assistente virtual, as mensagens da jornada e o painel.</p>
+  </div>
+  <button type="button" class="botao secundario" id="preencher-exemplo">Preencher com um exemplo</button>
+</div>
+
+{% if erros %}
+<div class="aviso aviso-erro" style="margin: 0 0 1rem">
+  <strong>Corrija antes de salvar:</strong>
+  <ul>{% for e in erros %}<li>{{ e }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+
+<form method="post" action="/hoteis/novo" id="form-hotel">
+<div class="grade-2">
+  <div>
+    <fieldset>
+      <legend>Hotel</legend>
+      <label class="campo">Nome <input name="nome" value="{{ v('nome') }}" required></label>
+      <div class="linha-campos">
+        <label class="campo">Cidade <input name="cidade" value="{{ v('cidade') }}" required></label>
+        <label class="campo">Telefone <input name="telefone" value="{{ v('telefone') }}" inputmode="tel"></label>
+        <label class="campo">WhatsApp <input name="whatsapp" value="{{ v('whatsapp') }}" inputmode="tel"></label>
+      </div>
+      <label class="campo">Endereço <input name="endereco" value="{{ v('endereco') }}" required></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Horários (Portaria MTur nº 28/2025)</legend>
+      <div class="linha-campos">
+        <label class="campo">Check-in a partir de <input type="time" name="checkin_hora" value="{{ v('checkin_hora') }}" required></label>
+        <label class="campo">Check-out até <input type="time" name="checkout_hora" value="{{ v('checkout_hora') }}" required></label>
+      </div>
+      <p class="suave pequeno">A diária é de 24 horas: entre o check-out e o check-in cabem no máximo 3 horas de limpeza.
+        Esses horários e as taxas abaixo vão na mensagem de confirmação de toda reserva.</p>
+      <label class="campo-check"><input type="checkbox" name="early_checkin_permite" value="1" {{ marcado('early_checkin_permite') }}> Oferece early check-in</label>
+      <div class="linha-campos">
+        <label class="campo">Early a partir de <input type="time" name="early_checkin_a_partir" value="{{ v('early_checkin_a_partir') }}"></label>
+        <label class="campo">Preço do early (R$) <input name="early_checkin_preco" value="{{ v('early_checkin_preco') }}" inputmode="decimal"></label>
+      </div>
+      <label class="campo-check"><input type="checkbox" name="late_checkout_permite" value="1" {{ marcado('late_checkout_permite') }}> Oferece late check-out</label>
+      <div class="linha-campos">
+        <label class="campo">Late até <input type="time" name="late_checkout_ate" value="{{ v('late_checkout_ate') }}"></label>
+        <label class="campo">Preço do late (R$) <input name="late_checkout_preco" value="{{ v('late_checkout_preco') }}" inputmode="decimal"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Chegada do hóspede</legend>
+      <label class="campo">Modo de chegada
+        <select name="modo_chegada">
+          {% for m in modos_chegada %}<option value="{{ m }}" {{ 'selected' if valores.get('modo_chegada') == m }}>{{ NOMES_MODO_CHEGADA[m] }}</option>{% endfor %}
+        </select>
+      </label>
+      <div class="linha-campos">
+        <label class="campo">Atendimento das <input type="time" name="recepcao_inicio" value="{{ v('recepcao_inicio') }}"></label>
+        <label class="campo">às <input type="time" name="recepcao_fim" value="{{ v('recepcao_fim') }}"></label>
+      </div>
+      <label class="campo">Instruções de entrada <small>vão na mensagem enviada 3h antes do check-in (quem recebe, cofre, senha…)</small>
+        <textarea name="instrucoes_chegada">{{ v('instrucoes_chegada') }}</textarea></label>
+      <div class="linha-campos">
+        <label class="campo">Contato de emergência <input name="contato_emergencia" value="{{ v('contato_emergencia') }}" inputmode="tel"></label>
+        <label class="campo">Link da FNRH Digital <input name="link_fnrh" value="{{ v('link_fnrh') }}" placeholder="pré-check-in oficial"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Wifi e pet</legend>
+      <div class="linha-campos">
+        <label class="campo">Rede <input name="wifi_rede" value="{{ v('wifi_rede') }}"></label>
+        <label class="campo">Senha <input name="wifi_senha" value="{{ v('wifi_senha') }}"></label>
+      </div>
+      <label class="campo">Observação sobre o sinal <input name="wifi_obs" value="{{ v('wifi_obs') }}" placeholder="opcional"></label>
+      <label class="campo-check"><input type="checkbox" name="aceita_pet" value="1" {{ marcado('aceita_pet') }}> Aceita pet (detalhe as condições na pergunta sobre pet)</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Acomodações</legend>
+      <p class="suave pequeno">Um tipo por linha. Unidades separadas por vírgula; faixas como <code>101-108</code> ou <code>C1-C6</code> também valem.</p>
+      <table class="tabela tabela-editavel">
+        <thead><tr><th>Tipo</th><th>Pessoas</th><th>Tarifa base</th><th>Unidades</th></tr></thead>
+        <tbody>
+        {% for i in range(n_tipos) %}
+        <tr>
+          <td><input name="tipo_nome_{{ i }}" value="{{ v('tipo_nome_' ~ i) }}" placeholder="{{ 'Suíte Casal' if i == 0 else '' }}" aria-label="Tipo {{ i + 1 }}"></td>
+          <td><input name="tipo_capacidade_{{ i }}" value="{{ v('tipo_capacidade_' ~ i) }}" type="number" min="1" style="width:4.5rem" aria-label="Capacidade {{ i + 1 }}"></td>
+          <td><input name="tipo_tarifa_{{ i }}" value="{{ v('tipo_tarifa_' ~ i) }}" inputmode="decimal" style="width:6rem" aria-label="Tarifa {{ i + 1 }}"></td>
+          <td><input name="tipo_unidades_{{ i }}" value="{{ v('tipo_unidades_' ~ i) }}" placeholder="{{ '101-108' if i == 0 else '' }}" aria-label="Unidades {{ i + 1 }}"></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </fieldset>
+
+    <fieldset>
+      <legend>Canais de venda</legend>
+      <table class="tabela">
+        <thead><tr><th>Canal</th><th>Comissão (%)</th><th>Anuncia por</th></tr></thead>
+        <tbody>
+        {% for t in tipos_canal %}
+        <tr>
+          <td><label class="campo-check" style="margin:0"><input type="checkbox" name="canal_{{ t }}" value="1" {{ marcado('canal_' ~ t) }}> {{ {'airbnb':'Airbnb','booking':'Booking.com','whatsapp':'WhatsApp','telefone':'Telefone','balcao':'Balcão'}[t] }}</label></td>
+          <td><input name="comissao_{{ t }}" value="{{ v('comissao_' ~ t) }}" inputmode="decimal" style="width:5rem" aria-label="Comissão {{ t }}"></td>
+          <td><select name="anuncio_{{ t }}" aria-label="Anúncio {{ t }}">
+            <option value="unidade" {{ 'selected' if valores.get('anuncio_' ~ t) != 'tipo' }}>unidade</option>
+            <option value="tipo" {{ 'selected' if valores.get('anuncio_' ~ t) == 'tipo' }}>tipo de quarto</option>
+          </select></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <p class="suave pequeno">O iCal só funciona com anúncio por unidade (no Booking: até 20 tipos, 1 unidade por tipo e sem channel manager).</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Responsável</legend>
+      <div class="linha-campos">
+        <label class="campo">Nome <input name="responsavel_nome" value="{{ v('responsavel_nome') }}"></label>
+        <label class="campo">Contato para alertas <input name="responsavel_contato" value="{{ v('responsavel_contato') }}"></label>
+      </div>
+    </fieldset>
+  </div>
+
+  <div>
+    <fieldset>
+      <legend>Perguntas frequentes → base de conhecimento</legend>
+      <p class="suave pequeno">Responda como responderia ao hóspede. O assistente usa <strong>só</strong> estas respostas;
+        pergunta sem resposta vai para a equipe. Geradas automaticamente dos campos ao lado:
+        {% for p in automaticas %}“{{ p.pergunta }}”{{ ', ' if not loop.last else '.' }}{% endfor %}</p>
+      {% for p in perguntas %}
+      <div class="pergunta-modelo">
+        <label for="kb_{{ p.categoria }}">{{ loop.index }}. {{ p.pergunta }}</label>
+        <textarea id="kb_{{ p.categoria }}" name="kb_{{ p.categoria }}" placeholder="{{ p.ajuda }}">{{ v('kb_' ~ p.categoria) }}</textarea>
+      </div>
+      {% endfor %}
+    </fieldset>
+    <button class="botao">Salvar hotel</button>
+  </div>
+</div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+// Exemplo fictício para agilizar a demonstração do cadastro
+const EXEMPLO = {
+  nome: "Pousada Recanto do Sol", cidade: "Anchieta (ES)", telefone: "(27) 3000-0303", whatsapp: "(27) 99000-0303",
+  endereco: "Rua dos Coqueiros, 45 – Anchieta/ES (endereço fictício)",
+  checkin_hora: "13:00", checkout_hora: "11:00",
+  early_checkin_permite: true, early_checkin_a_partir: "10:00", early_checkin_preco: "40",
+  late_checkout_permite: true, late_checkout_ate: "13:00", late_checkout_preco: "40",
+  modo_chegada: "recepcao_24h", recepcao_inicio: "", recepcao_fim: "",
+  instrucoes_chegada: "A recepção fica aberta 24 horas: é só se apresentar com um documento com foto.",
+  contato_emergencia: "(27) 99000-0399", link_fnrh: "https://fnrh-digital.exemplo/pre-checkin/recanto-do-sol",
+  wifi_rede: "RecantoDoSol", wifi_senha: "sol2026", wifi_obs: "", aceita_pet: true,
+  tipo_nome_0: "Quarto Standard", tipo_capacidade_0: "2", tipo_tarifa_0: "230", tipo_unidades_0: "1-6",
+  tipo_nome_1: "Quarto Triplo", tipo_capacidade_1: "3", tipo_tarifa_1: "300", tipo_unidades_1: "7-9",
+  canal_airbnb: false, canal_booking: true, comissao_booking: "15", canal_whatsapp: true, comissao_whatsapp: "0",
+  canal_telefone: true, comissao_telefone: "0",
+  responsavel_nome: "Marta Silva", responsavel_contato: "(27) 99000-0399",
+  kb_pet: "Sim! Aceitamos pets de até 15 kg, sem taxa. Pedimos que não subam nas camas.",
+  kb_cafe: "O café da manhã está incluso e é servido das 7h às 10h no salão.",
+  kb_estacionamento: "Temos estacionamento gratuito e coberto, com 8 vagas.",
+  kb_como_chegar: "Ficamos na Rua dos Coqueiros, 45, em Anchieta (ES), a duas quadras da praia central.",
+  kb_chegada_fora_horario: "A recepção funciona 24 horas, então você pode chegar a qualquer hora.",
+  kb_criancas: "Crianças até 6 anos não pagam. Temos berço sem custo.",
+  kb_cancelamento: "Cancelamento grátis até 5 dias antes da chegada. Depois disso, cobramos a primeira diária.",
+  kb_pagamento: "Aceitamos Pix, cartão de crédito (até 3x) e dinheiro.",
+  kb_lazer: "Temos piscina aberta das 8h às 21h e um redário no jardim.",
+  kb_silencio: "Silêncio a partir das 23h.",
+  kb_roupa_cama: "Roupa de cama e toalhas de banho estão incluídas; toalha de piscina na recepção.",
+  kb_turismo: "Perto daqui: praia central (2 quadras), Santuário de Anchieta (5 min de carro) e passeio de escuna.",
+};
+document.getElementById("preencher-exemplo").addEventListener("click", () => {
+  const form = document.getElementById("form-hotel");
+  for (const [nome, valor] of Object.entries(EXEMPLO)) {
+    const campo = form.elements[nome];
+    if (!campo) continue;
+    if (campo.type === "checkbox") campo.checked = !!valor;
+    else campo.value = valor;
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% block titulo %}Equipe{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>Equipe · {{ hotel.nome }}</h1>
+    <p class="suave">O que precisa de uma pessoa: conversas escaladas, chegadas do dia, alertas e pendências.</p>
+  </div>
+  <a class="botao secundario" href="/chat?hotel={{ hotel.slug }}">Abrir o chat do hóspede</a>
+</div>
+<div class="aviso aviso-novidade" id="novidades" hidden>
+  Chegou mensagem nova ou um alerta. <a href="/equipe?hotel={{ hotel.slug }}">Atualizar a tela</a>
+</div>
+
+<div class="grade-2">
+  <div class="pilha">
+    <section class="cartao" id="conversas">
+      <h2>Conversas com a equipe ({{ escaladas|length }})</h2>
+      {% for c in escaladas %}
+      <article class="conversa-escalada">
+        <header>
+          <div>
+            <strong>{{ c.hospede.nome if c.hospede else 'Contato sem reserva' }}</strong>
+            <span class="suave pequeno">{{ c.telefone }}</span>
+          </div>
+          <span class="etiqueta humano">{{ c.motivo_escalonamento or 'Escalada' }}</span>
+        </header>
+        <div class="mini-chat">
+          {% for m in c.mensagens[-8:] %}
+          <div class="bolha autor-{{ m.autor }}">
+            {% if m.autor == 'bot' %}<span class="rotulo">Assistente virtual</span>
+            {% elif m.autor == 'equipe' %}<span class="rotulo">Equipe</span>{% endif %}
+            <div class="texto">{{ m.texto }}</div>
+            <span class="hora">{{ m.criada_em.strftime('%d/%m %H:%M') }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        <form method="post" action="/equipe/conversas/{{ c.id }}/responder" class="resposta-equipe">
+          <input type="hidden" name="hotel" value="{{ hotel.slug }}">
+          <input name="texto" placeholder="Responder como equipe…" required aria-label="Resposta da equipe">
+          <button class="botao">Enviar</button>
+        </form>
+        <div class="acoes">
+          <form method="post" action="/equipe/conversas/{{ c.id }}/devolver">
+            <input type="hidden" name="hotel" value="{{ hotel.slug }}">
+            <button class="botao secundario pequeno">Devolver ao bot</button>
+          </form>
+          <form method="post" action="/equipe/conversas/{{ c.id }}/encerrar">
+            <input type="hidden" name="hotel" value="{{ hotel.slug }}">
+            <button class="botao secundario pequeno">Encerrar conversa</button>
+          </form>
+          <a class="botao secundario pequeno" href="/chat?hotel={{ hotel.slug }}&telefone={{ c.telefone|urlencode }}">Ver no chat</a>
+        </div>
+      </article>
+      {% else %}
+      <p class="vazio">Nenhuma conversa aguardando a equipe. O assistente virtual está dando conta.</p>
+      {% endfor %}
+    </section>
+
+    <section class="cartao" id="alertas">
+      <h2>Alertas abertos ({{ alertas|length }})</h2>
+      {% if alertas %}
+      <div class="rolagem">
+      <table class="tabela">
+        <thead><tr><th>Tipo</th><th>O que aconteceu</th><th></th></tr></thead>
+        <tbody>
+        {% for a, link in alertas %}
+        <tr>
+          <td><span class="etiqueta {{ a.tipo }}">{{ NOMES_ALERTA.get(a.tipo, a.tipo) }}</span><br>
+            <small class="suave nowrap">{{ a.criado_em|data_br }}</small></td>
+          <td>{{ a.texto }}{% if link %}<br><a href="{{ link }}" class="pequeno">abrir</a>{% endif %}</td>
+          <td class="direita">
+            <form method="post" action="/equipe/alertas/{{ a.id }}/resolver">
+              <input type="hidden" name="hotel" value="{{ hotel.slug }}">
+              <button class="botao secundario pequeno">Resolver</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      {% else %}
+      <p class="vazio">Nenhum alerta aberto.</p>
+      {% endif %}
+    </section>
+
+    <section class="cartao" id="valor-pendente">
+      <h2>Reservas com valor pendente ({{ pendentes|length }})</h2>
+      <p class="suave pequeno">O iCal das OTAs só traz as datas. Complete o valor (do CSV da OTA ou do extrato) para o painel calcular ADR e receita.</p>
+      {% if pendentes %}
+      <div class="rolagem">
+      <table class="tabela">
+        <thead><tr><th>Reserva</th><th>Datas</th><th>Valor total</th></tr></thead>
+        <tbody>
+        {% for r in pendentes %}
+        <tr>
+          <td><a href="/reservas/{{ r.id }}">#{{ r.id }}</a> · {{ r.canal.nome }}<br><small class="suave">unidade {{ r.unidade.identificacao }}</small></td>
+          <td class="nowrap">{{ r.check_in|data_curta }} a {{ r.check_out|data_curta }}<br><small class="suave">{{ r.noites }} noite(s)</small></td>
+          <td>
+            <form method="post" action="/equipe/reservas/{{ r.id }}/valor" class="form-inline">
+              <input type="hidden" name="hotel" value="{{ hotel.slug }}">
+              <input name="valor" placeholder="R$" inputmode="decimal" required aria-label="Valor da reserva {{ r.id }}">
+              <button class="botao secundario pequeno">Salvar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      {% else %}
+      <p class="vazio">Todas as reservas têm valor.</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <div class="pilha">
+    {% set voltar = "/equipe" %}
+    {% set reserva_id = None %}
+    {% include "_relogio.html" %}
+
+    <section class="cartao" id="hoje">
+      <h2>Chegadas de hoje ({{ chegadas|length }})</h2>
+      {% if chegadas %}
+      <table class="tabela">
+        <thead><tr><th>Hóspede</th><th>Unidade</th><th>Canal</th><th>Chegada prevista</th></tr></thead>
+        <tbody>
+        {% for r in chegadas %}
+        <tr>
+          <td><a href="/reservas/{{ r.id }}">{{ r.hospede.nome if r.hospede else 'Reserva #' ~ r.id }}</a></td>
+          <td>{{ r.unidade.identificacao }}</td>
+          <td>{{ r.canal.nome }}</td>
+          <td>{% if r.hora_prevista_chegada %}<strong>{{ r.hora_prevista_chegada|hora_br }}</strong>{% else %}<span class="suave">não informada</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}<p class="vazio">Nenhuma chegada hoje.</p>{% endif %}
+
+      <h2 style="margin-top:1rem">Saídas de hoje ({{ saidas|length }})</h2>
+      {% if saidas %}
+      <table class="tabela">
+        <thead><tr><th>Hóspede</th><th>Unidade</th><th>Canal</th><th>Check-out até</th></tr></thead>
+        <tbody>
+        {% for r in saidas %}
+        <tr>
+          <td><a href="/reservas/{{ r.id }}">{{ r.hospede.nome if r.hospede else 'Reserva #' ~ r.id }}</a></td>
+          <td>{{ r.unidade.identificacao }}</td>
+          <td>{{ r.canal.nome }}</td>
+          <td>{{ hotel.checkout_hora|hora_br }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}<p class="vazio">Nenhuma saída hoje.</p>{% endif %}
+    </section>
+
+    <section class="cartao" id="nova-reserva">
+      <h2>Nova reserva direta</h2>
+      <p class="suave pequeno">Reserva feita pelo WhatsApp, telefone ou balcão. Bloqueia a data em todos os canais (via iCal de saída)
+        e agenda a jornada de mensagens.</p>
+      <form method="post" action="/equipe/reservas">
+        <input type="hidden" name="hotel" value="{{ hotel.slug }}">
+        <label class="campo">Nome do hóspede <input name="nome" required></label>
+        <div class="linha-campos">
+          <label class="campo">Telefone (WhatsApp) <input name="telefone" inputmode="tel" placeholder="(27) 99999-9999"></label>
+          <label class="campo">E-mail <input name="email" type="email" placeholder="opcional"></label>
+        </div>
+        <label class="campo-check"><input type="checkbox" name="consentimento" value="1">
+          O hóspede autorizou receber mensagens no WhatsApp</label>
+        <div class="linha-campos">
+          <label class="campo">Canal
+            <select name="canal_id">
+              {% for c in canais_diretos %}<option value="{{ c.id }}">{{ c.nome }}</option>{% endfor %}
+            </select>
+          </label>
+          <label class="campo">Acomodação
+            <select name="acomodacao">
+              <optgroup label="Qualquer unidade livre do tipo">
+                {% for t in tipos %}<option value="tipo:{{ t.id }}">{{ t.nome }} (até {{ t.capacidade }}) · {{ t.tarifa_base|moeda_curta }}/noite</option>{% endfor %}
+              </optgroup>
+              <optgroup label="Unidade específica">
+                {% for u in unidades %}<option value="un:{{ u.id }}">{{ u.identificacao }} · {{ u.tipo.nome }}</option>{% endfor %}
+              </optgroup>
+            </select>
+          </label>
+        </div>
+        <div class="linha-campos">
+          <label class="campo">Check-in <input type="date" name="check_in" value="{{ sugestao_check_in.isoformat() }}" required></label>
+          <label class="campo">Check-out <input type="date" name="check_out" value="{{ sugestao_check_out.isoformat() }}" required></label>
+          <label class="campo">Hóspedes <input type="number" name="num_hospedes" value="2" min="1" max="10"></label>
+        </div>
+        <label class="campo">Valor total (R$)
+          <input name="valor" inputmode="decimal" placeholder="vazio = tarifa base × noites (+20% sex/sáb)">
+        </label>
+        <button class="botao">Criar reserva e agendar mensagens</button>
+      </form>
+    </section>
+
+    <section class="cartao" id="ical">
+      <h2>Calendário único (iCal)</h2>
+      <p class="suave pequeno">O iCal da OTA só traz as datas ocupadas: cada bloqueio vira uma reserva sem valor.
+        Se sobrepuser outra reserva, ela é gravada assim mesmo e gera um alerta de conflito.</p>
+      <form method="post" action="/equipe/ical/importar" enctype="multipart/form-data">
+        <input type="hidden" name="hotel" value="{{ hotel.slug }}">
+        <div class="linha-campos">
+          <label class="campo">Unidade
+            <select name="unidade_id">{% for u in unidades %}<option value="{{ u.id }}">{{ u.identificacao }} · {{ u.tipo.nome }}</option>{% endfor %}</select>
+          </label>
+          <label class="campo">Canal
+            <select name="canal_id">{% for c in canais_ota %}<option value="{{ c.id }}">{{ c.nome }}</option>{% endfor %}</select>
+          </label>
+        </div>
+        <label class="campo">Arquivo .ics <input type="file" name="arquivo" accept=".ics,text/calendar" required></label>
+        <button class="botao secundario">Importar iCal</button>
+      </form>
+      {% if calendarios %}
+      <h3>Últimas importações</h3>
+      <table class="tabela">
+        {% for c in calendarios %}
+        <tr><td>{{ c.unidade.identificacao }}</td><td>{{ c.canal.nome }}</td><td class="suave">{{ c.ical_url }}</td>
+          <td class="nowrap suave">{{ c.ultima_sincronizacao|data_br }}</td></tr>
+        {% endfor %}
+      </table>
+      {% endif %}
+      <h3>Exportar (um link por unidade, para colar no Airbnb/Booking)</h3>
+      <p class="acoes-linha">
+        {% for u in unidades %}<a class="chip" href="/ical/{{ hotel.slug }}/{{ u.identificacao|urlencode }}.ics">{{ u.identificacao }}.ics</a>{% endfor %}
+      </p>
+    </section>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+// mostra as mensagens mais recentes de cada conversa escalada
+document.querySelectorAll(".mini-chat").forEach((c) => { c.scrollTop = c.scrollHeight; });
+
+// avisa (sem recarregar sozinho, para não apagar o que a equipe está digitando)
+(function () {
+  const inicial = {{ assinatura|tojson }};
+  const aviso = document.getElementById("novidades");
+  setInterval(async () => {
+    const r = await fetch("/api/equipe/pendencias?hotel={{ hotel.slug }}");
+    if (r.ok && (await r.json()).assinatura !== inicial) aviso.hidden = false;
+  }, 4000);
+})();
+</script>
+{% endblock %}

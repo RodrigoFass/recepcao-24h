@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block titulo %}Reserva #{{ reserva.id }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>Reserva #{{ reserva.id }} · {{ reserva.hospede.nome if reserva.hospede else 'sem hóspede (iCal)' }}</h1>
+    <p class="suave">{{ hotel.nome }} · <span class="etiqueta {{ reserva.status }}">{{ NOMES_STATUS.get(reserva.status, reserva.status) }}</span></p>
+  </div>
+  <a class="botao secundario" href="/equipe?hotel={{ hotel.slug }}">Voltar para a equipe</a>
+</div>
+
+<div class="grade-2">
+  <div class="pilha">
+    <section class="cartao">
+      <h2>Dados da reserva</h2>
+      <table class="tabela">
+        <tr><th>Unidade</th><td>{{ reserva.unidade.identificacao }} · {{ reserva.unidade.tipo.nome }}</td></tr>
+        <tr><th>Canal</th><td>{{ reserva.canal.nome }}{% if reserva.canal.comissao_pct %} (comissão {{ reserva.canal.comissao_pct|numero(0) }}%){% endif %}
+          {% if reserva.codigo_externo %}<br><small class="suave">código {{ reserva.codigo_externo }}</small>{% endif %}</td></tr>
+        <tr><th>Entrada</th><td>{{ reserva.check_in|dia_semana }}, {{ reserva.check_in|data_br }} a partir das {{ hotel.checkin_hora|hora_br }}</td></tr>
+        <tr><th>Saída</th><td>{{ reserva.check_out|dia_semana }}, {{ reserva.check_out|data_br }} até as {{ hotel.checkout_hora|hora_br }}</td></tr>
+        <tr><th>Noites</th><td>{{ reserva.noites }} · {{ reserva.num_hospedes }} hóspede(s)</td></tr>
+        <tr><th>Valor</th><td>
+          {% if reserva.valor_total is not none %}{{ reserva.valor_total|moeda }}
+          {% else %}
+          <form method="post" action="/equipe/reservas/{{ reserva.id }}/valor" class="form-inline">
+            <input type="hidden" name="hotel" value="{{ hotel.slug }}">
+            <input type="hidden" name="voltar" value="/reservas/{{ reserva.id }}">
+            <span class="etiqueta valor_pendente">pendente</span>
+            <input name="valor" placeholder="R$" inputmode="decimal" required aria-label="Valor da reserva">
+            <button class="botao secundario pequeno">Salvar</button>
+          </form>
+          {% endif %}
+        </td></tr>
+        <tr><th>Telefone</th><td>{{ reserva.hospede.telefone if reserva.hospede and reserva.hospede.telefone else '—' }}</td></tr>
+        <tr><th>WhatsApp</th><td>
+          {% if reserva.hospede and reserva.hospede.consentimento_whatsapp_em %}autorizado em {{ reserva.hospede.consentimento_whatsapp_em|data_br }}
+          {% else %}sem consentimento: mensagens vão pelo chat da OTA{% endif %}</td></tr>
+        <tr><th>Chegada prevista</th><td>{{ reserva.hora_prevista_chegada|hora_br if reserva.hora_prevista_chegada else 'não informada' }}</td></tr>
+        <tr><th>Origem</th><td>{{ reserva.origem }} · criada em {{ reserva.criada_em|data_br }}</td></tr>
+        {% if reserva.avaliacao %}
+        <tr><th>Avaliação</th><td>nota {{ reserva.avaliacao.nota }}{% if reserva.avaliacao.comentario %} · “{{ reserva.avaliacao.comentario }}”{% endif %}</td></tr>
+        {% endif %}
+      </table>
+      <div class="acoes">
+        {% if reserva.hospede and reserva.hospede.telefone %}
+        <a class="botao" href="/chat?hotel={{ hotel.slug }}&telefone={{ reserva.hospede.telefone|urlencode }}">Abrir a conversa no chat</a>
+        {% endif %}
+        {% if reserva.status == 'confirmada' %}
+        <form method="post" action="/reservas/{{ reserva.id }}/cancelar" onsubmit="return confirm('Cancelar esta reserva?')">
+          <button class="botao perigo">Cancelar reserva</button>
+        </form>
+        {% endif %}
+      </div>
+    </section>
+
+    {% if alertas %}
+    <section class="cartao">
+      <h2>Alertas desta reserva</h2>
+      <table class="tabela">
+        {% for a in alertas %}
+        <tr><td><span class="etiqueta {{ a.tipo }}">{{ NOMES_ALERTA.get(a.tipo, a.tipo) }}</span></td><td>{{ a.texto }}</td>
+          <td class="nowrap suave">{{ 'resolvido' if a.resolvido else 'aberto' }}</td></tr>
+        {% endfor %}
+      </table>
+    </section>
+    {% endif %}
+  </div>
+
+  <div class="pilha">
+    {% set voltar = "/reservas/" ~ reserva.id %}
+    {% set reserva_id = reserva.id %}
+    {% include "_relogio.html" %}
+
+    <section class="cartao">
+      <h2>Linha do tempo da jornada</h2>
+      {% if agendadas %}
+      <ol class="linha-tempo">
+        {% for m in agendadas %}
+        <li class="{{ m.status }}{{ ' proxima' if proxima and m.id == proxima.id }}">
+          <div class="etapa-topo">
+            <strong>{{ NOMES_ETAPAS.get(m.etapa, m.etapa) }}</strong>
+            <span class="etiqueta {{ m.status }}">{{ NOMES_STATUS.get(m.status, m.status) }}</span>
+            {% if m.meio == 'ota_manual' %}<span class="etiqueta ota_manual">copiar para o chat da OTA</span>{% endif %}
+            {% if m.etapa == 'hora_chegada' and reserva.hora_prevista_chegada and m.status != 'pendente' %}
+            <span class="etiqueta ok">respondida: {{ reserva.hora_prevista_chegada|hora_br }}</span>{% endif %}
+            {% if m.etapa == 'pesquisa' and reserva.avaliacao %}
+            <span class="etiqueta {{ 'perigo' if reserva.avaliacao.nota <= 3 else 'ok' }}">nota {{ reserva.avaliacao.nota }}</span>{% endif %}
+          </div>
+          <small class="suave">{{ m.enviar_em|dia_semana }}, {{ m.enviar_em|data_br }}</small>
+          <div class="etapa-texto" id="texto-{{ m.id }}">{{ m.texto }}</div>
+          {% if m.meio == 'ota_manual' and m.status == 'pendente' %}
+          <div class="acoes">
+            <button type="button" class="botao secundario pequeno" data-copiar="texto-{{ m.id }}">Copiar texto</button>
+            <form method="post" action="/reservas/{{ reserva.id }}/mensagens/{{ m.id }}/enviada">
+              <button class="botao secundario pequeno">Marcar como enviada</button>
+            </form>
+          </div>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+      {% else %}
+      <p class="vazio">Esta reserva não tem mensagens agendadas.</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll("[data-copiar]").forEach((b) => b.addEventListener("click", async () => {
+  const texto = document.getElementById(b.dataset.copiar).textContent;
+  try { await navigator.clipboard.writeText(texto); b.textContent = "Copiado!"; } catch (e) { b.textContent = "Selecione e copie"; }
+}));
+</script>
+{% endblock %}

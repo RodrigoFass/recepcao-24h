@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block titulo %}Painel{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>Painel · {{ hotel.nome }}</h1>
+    <p class="suave">{{ ind.inicio|data_br }} a {{ ind.fim|data_br }} · {{ ind.dias }} dias · {{ ind.unidades }} unidades ativas</p>
+  </div>
+  <form method="get" action="/painel" class="filtro-periodo">
+    <input type="hidden" name="hotel" value="{{ hotel.slug }}">
+    <label class="campo">De <input type="date" name="inicio" value="{{ ind.inicio.isoformat() }}"></label>
+    <label class="campo">Até <input type="date" name="fim" value="{{ ind.fim.isoformat() }}"></label>
+    <button class="botao secundario">Atualizar</button>
+  </form>
+</div>
+<p class="acoes-linha" style="margin:-0.4rem 0 1rem">
+  {% for rotulo, ini, fim in atalhos %}
+  <a class="chip {{ 'ativo' if ini == ind.inicio and fim == ind.fim }}" href="/painel?hotel={{ hotel.slug }}&inicio={{ ini.isoformat() }}&fim={{ fim.isoformat() }}">{{ rotulo }}</a>
+  {% endfor %}
+</p>
+
+<div class="cartoes-kpi">
+  <div class="kpi"><div class="rotulo">Ocupação</div><div class="valor">{{ ind.ocupacao|pct }}</div>
+    <div class="detalhe">{{ ind.noites_vendidas }} de {{ ind.unidades * ind.dias }} noites</div></div>
+  <div class="kpi"><div class="rotulo">ADR (diária média)</div><div class="valor">{{ ind.adr|moeda }}</div>
+    <div class="detalhe">receita ÷ noites com valor</div></div>
+  <div class="kpi"><div class="rotulo">RevPAR</div><div class="valor">{{ ind.revpar|moeda }}</div>
+    <div class="detalhe">receita ÷ noites disponíveis</div></div>
+  <div class="kpi"><div class="rotulo">Reservas diretas</div><div class="valor">{{ ind.pct_diretas|pct }}</div>
+    <div class="detalhe">de {{ ind.reservas }} reservas, sem comissão</div></div>
+  <div class="kpi"><div class="rotulo">Resolução do bot</div><div class="valor">{{ ind.resolucao_bot|pct }}</div>
+    <div class="detalhe">{{ ind.conversas_resolvidas }} de {{ ind.conversas }} conversas; {{ ind.conversas_escaladas }} escaladas</div></div>
+  <div class="kpi"><div class="rotulo">Nota média</div><div class="valor">{{ ind.nota_media|numero(1) if ind.nota_media else '—' }}<small class="suave"> / 5</small></div>
+    <div class="detalhe">{{ ind.avaliacoes }} avaliação(ões) de estadias no período</div></div>
+</div>
+
+<div class="grade-2">
+  <section class="cartao" style="grid-column: 1 / -1">
+    <h2>Ocupação diária</h2>
+    <div class="grafico"><canvas id="g-diaria" aria-label="Ocupação diária" role="img"></canvas></div>
+  </section>
+  <section class="cartao">
+    <h2>Ocupação por dia da semana</h2>
+    <div class="grafico"><canvas id="g-semana" aria-label="Ocupação por dia da semana" role="img"></canvas></div>
+  </section>
+  <section class="cartao">
+    <h2>Receita bruta × líquida por canal</h2>
+    <div class="grafico"><canvas id="g-canais" aria-label="Receita por canal" role="img"></canvas></div>
+  </section>
+  <section class="cartao" style="grid-column: 1 / -1">
+    <h2>Por canal</h2>
+    <table class="tabela">
+      <thead><tr><th>Canal</th><th class="direita">Comissão</th><th class="direita">Reservas</th><th class="direita">Noites</th>
+        <th class="direita">Receita bruta</th><th class="direita">Comissão (R$)</th><th class="direita">Receita líquida</th></tr></thead>
+      <tbody>
+      {% for c in ind.canais %}
+      <tr><td>{{ c.nome }}</td><td class="direita">{{ c.comissao_pct|numero(0) }}%</td><td class="direita">{{ c.reservas }}</td>
+        <td class="direita">{{ c.noites }}</td><td class="direita">{{ c.bruta|moeda }}</td>
+        <td class="direita">{{ (c.bruta - c.liquida)|moeda }}</td><td class="direita"><strong>{{ c.liquida|moeda }}</strong></td></tr>
+      {% else %}
+      <tr><td colspan="7" class="vazio">Nenhuma reserva no período.</td></tr>
+      {% endfor %}
+      </tbody>
+      {% if ind.canais %}
+      <tfoot><tr><th>Total</th><td></td><td class="direita">{{ ind.reservas }}</td><td class="direita">{{ ind.noites_vendidas }}</td>
+        <td class="direita">{{ ind.receita_bruta|moeda }}</td><td class="direita">{{ (ind.receita_bruta - ind.receita_liquida)|moeda }}</td>
+        <td class="direita"><strong>{{ ind.receita_liquida|moeda }}</strong></td></tr></tfoot>
+      {% endif %}
+    </table>
+    {% if ind.noites_com_valor < ind.noites_vendidas %}
+    <p class="suave pequeno">{{ ind.noites_vendidas - ind.noites_com_valor }} noite(s) de reservas sem valor (pendentes) ficam fora da receita, do ADR e do RevPAR.
+      <a href="/equipe?hotel={{ hotel.slug }}#valor-pendente">Completar valores</a>.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/vendor/chart.umd.min.js"></script>
+<script>
+const DADOS = {{ graficos|tojson }};
+const COR = { serie1: "#2a78d6", serie2: "#eb6834", grade: "#e1e0d9", eixo: "#898781", texto: "#52514e" };
+const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const brlCurto = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+
+Chart.defaults.font.family = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+Chart.defaults.color = COR.texto;
+Chart.defaults.maintainAspectRatio = false;
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+Chart.defaults.plugins.legend.labels.boxHeight = 12;
+Chart.defaults.plugins.tooltip.backgroundColor = "#1d2733";
+
+const eixoPct = {
+  beginAtZero: true, max: 100, grid: { color: COR.grade }, border: { display: false },
+  ticks: { color: COR.eixo, callback: (v) => v + "%" },
+};
+const eixoX = { grid: { display: false }, border: { color: "#c3c2b7" }, ticks: { color: COR.eixo } };
+const barra = { backgroundColor: COR.serie1, borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: "bottom",
+  hoverBackgroundColor: "#1c5cab" };
+
+new Chart(document.getElementById("g-diaria"), {
+  type: "bar",
+  data: { labels: DADOS.diaria.rotulos, datasets: [{ label: "Ocupação", data: DADOS.diaria.valores, ...barra,
+    maxBarThickness: 18, categoryPercentage: 0.9, barPercentage: 0.9 }] },
+  options: {
+    plugins: { legend: { display: false }, tooltip: { callbacks: {
+      title: (i) => i[0].label + (DADOS.diaria.fds[i[0].dataIndex] ? " (noite de fim de semana)" : ""),
+      label: (c) => ` Ocupação: ${c.parsed.y.toLocaleString("pt-BR")}%` } } },
+    scales: { y: eixoPct, x: { ...eixoX, ticks: { color: COR.eixo, autoSkip: true, maxRotation: 0 } } },
+    interaction: { mode: "index", intersect: false },
+  },
+});
+
+new Chart(document.getElementById("g-semana"), {
+  type: "bar",
+  data: { labels: DADOS.semana.rotulos, datasets: [{ label: "Ocupação", data: DADOS.semana.valores, ...barra,
+    maxBarThickness: 44 }] },
+  options: {
+    plugins: { legend: { display: false }, tooltip: { callbacks: {
+      label: (c) => ` Ocupação: ${c.parsed.y.toLocaleString("pt-BR")}%` } } },
+    scales: { y: eixoPct, x: eixoX },
+    interaction: { mode: "index", intersect: false },
+  },
+});
+
+new Chart(document.getElementById("g-canais"), {
+  type: "bar",
+  data: {
+    labels: DADOS.canais.rotulos,
+    datasets: [
+      { label: "Receita líquida", data: DADOS.canais.liquida, backgroundColor: COR.serie1, borderRadius: 0,
+        borderColor: "#ffffff", borderWidth: { top: 2 }, maxBarThickness: 56 },
+      { label: "Comissão da OTA (bruta − líquida)", data: DADOS.canais.comissao, backgroundColor: COR.serie2,
+        borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: "bottom", maxBarThickness: 56 },
+    ],
+  },
+  options: {
+    plugins: {
+      legend: { position: "top", align: "start" },
+      tooltip: { callbacks: {
+        label: (c) => ` ${c.dataset.label}: ${brl.format(c.parsed.y)}`,
+        footer: (i) => `Receita bruta: ${brl.format(DADOS.canais.bruta[i[0].dataIndex])}`,
+      } },
+    },
+    scales: {
+      x: { ...eixoX, stacked: true },
+      y: { stacked: true, beginAtZero: true, grid: { color: COR.grade }, border: { display: false },
+        ticks: { color: COR.eixo, callback: (v) => brlCurto.format(v) } },
+    },
+    interaction: { mode: "index", intersect: false },
+  },
+});
+</script>
+{% endblock %}

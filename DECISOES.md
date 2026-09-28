@@ -1,0 +1,72 @@
+# Decisões tomadas durante a construção
+
+Uma linha por decisão (as mais simples que atendem ao `CLAUDE.md`).
+
+- Python 3.14 (via `py -3.14`) num ambiente virtual `.venv`; o projeto também roda em 3.11+.
+- `tzdata` entra no `requirements.txt` porque o Windows não traz a base de fusos que o `zoneinfo` usa.
+- Horários do hotel (`checkin_hora`, `recepcao_inicio` etc.) e `hora_prevista_chegada` ficam como texto `"HH:MM"`; datas e datas-hora em ISO (padrão do SQLite/SQLAlchemy).
+- Datas-hora sem fuso, sempre no horário local de America/Sao_Paulo (todos os hotéis do MVP estão nesse fuso).
+- Relógio simulado = horário real + deslocamento guardado na tabela `configuracao` (chave/valor), que não está na lista de entidades do `CLAUDE.md`; o seed zera o deslocamento.
+- Horário-limite do early check-in e do late check-out (11h e 14h na Maré Alta), wifi, instruções de entrada, contato de emergência e link de avaliação no Google ficam em `Hotel.politicas` (json), para não criar colunas fora do modelo.
+- `Reserva.hospede_id` aceita nulo: reservas importadas por iCal não têm hóspede.
+- Base de conhecimento: 16 perguntas-modelo iguais para todos os hotéis (as ~15 do `CLAUDE.md`, com check-in e check-out juntos e early/late separados); as palavras-chave são da pergunta-modelo, e o hotel só escreve a resposta.
+- As respostas de horários, early/late e wifi são geradas dos campos do cadastro, para não haver informação desencontrada.
+- Seed: estadias sorteadas dia a dia por unidade, com peso maior para chegadas na quinta e na sexta; a probabilidade é calibrada (busca simples) até a ocupação dos últimos 90 dias ficar perto do alvo.
+- Seed: "próximo fim de semana" = noites de sexta e sábado da primeira sexta-feira depois de hoje.
+- Seed: nas reservas futuras, as noites de sexta e sábado (fora o fim de semana lotado da Serra) ficam com pelo menos 3 unidades livres.
+- Seed: hóspedes de OTA não têm telefone, exceto 30% (como se viessem do CSV da OTA), e nenhum deles tem consentimento de WhatsApp.
+- Seed: cada reserva de OTA sem valor gera um `Alerta` do tipo `valor_pendente`, como o cadastro manual faz.
+- Links da FNRH Digital e do Google nos hotéis fictícios usam domínios `.exemplo`, que não existem.
+- Rotas separadas por tela em `app/rotas/`, com os templates e filtros em `app/web.py`; o `app/main.py` só monta a aplicação.
+- Bot demo: antes das regras do `CLAUDE.md`, trata saudação, agradecimento, "você é humano?" e o "sim"/"não" depois de o bot oferecer chamar a equipe.
+- Gatilhos de escalonamento casam por palavra inteira ou radical: "pessoa" não casa "pessoas", para "quarto para 4 pessoas" não escalar.
+- "Você é humano?" e "estou falando com uma pessoa?" (pergunta) respondem a identidade; "quero falar com uma pessoa" (pedido) escala.
+- Busca na base: palavra-chave com várias palavras casa quando todas aparecem; vale 1 ponto por palavra; empate decidido pela similaridade (`difflib`) com a pergunta-modelo; limiar = 1 ponto ou similaridade ≥ 0,75. Palavras com 6+ letras aceitam pequenos erros de digitação.
+- Pedido de reserva ou de preço sem datas: o bot pede as datas (e informa a tarifa base) em vez de escalar.
+- Só uma data ("tem vaga dia 16/10?") = 1 noite. "16 a 18/10" também é aceito.
+- A primeira resposta de cada conversa começa com "Olá! Sou o assistente virtual da …", nos dois modos, se a resposta ainda não trouxer isso.
+- A mensagem do hóspede é gravada antes de o bot responder; se o modo IA falhar (ex.: sem internet), a mensagem é respondida pelo modo demo.
+- O chat mostra todo o histórico do telefone naquele hotel; o mesmo telefone em outro hotel é outra conversa.
+- Reserva direta sem valor informado = tarifa base × noites, com +20% nas noites de sexta e sábado (mesma regra do seed).
+- Na reserva direta, a acomodação pode ser um tipo (o sistema pega a primeira unidade livre) ou uma unidade específica; a entrada não pode estar no passado.
+- Todas as ações da equipe recebem o hotel e conferem que a conversa, o alerta ou a reserva pertencem a ele (senão, 404).
+- "Devolver ao bot" e "Encerrar" resolvem o alerta de escalonamento; o motivo continua gravado, então a conversa conta como escalada no painel.
+- Alertas de valor pendente aparecem só na seção "Reservas com valor pendente" (com o campo para completar), não na lista geral de alertas.
+- Mensagens de reservas sem WhatsApp (`ota_manual`) têm os botões "Copiar texto" e "Marcar como enviada" na linha do tempo.
+- Cadastro: além do intervalo acima de 3 horas, recusa check-in antes do check-out (a diária precisa fechar 24 horas).
+- Cadastro: até 4 tipos de acomodação no formulário; as unidades aceitam faixas ("101-108", "C1-C6").
+- Cadastro: se a pergunta sobre pet ficar em branco, a resposta vem da caixa "Aceita pet".
+- Cadastro: botão "Preencher com um exemplo" (terceiro hotel fictício) para demonstrar o M0 em segundos.
+- Jornada: "resposta" à pergunta do horário = `hora_prevista_chegada` preenchida; outra mensagem qualquer não conta.
+- Jornada: reenvio 6h depois do envio e alerta `sem_resposta` 12h depois; num salto grande do relógio, tudo é aplicado em ordem.
+- Jornada: o texto de cada mensagem é refeito na hora do envio (ex.: as instruções de entrada já trazem a hora prevista informada).
+- Jornada: mensagens entregues pelo relógio entram no chat com o horário agendado, não com o horário do clique.
+- Jornada: código do cofre / senha da fechadura = número fictício de 4 dígitos derivado do id da reserva.
+- Jornada: mensagens `ota_manual` nunca são "enviadas" pelo relógio; a equipe copia o texto e marca como enviada.
+- Relógio: ao avançar, reservas com check-out passado viram `concluida` e conversas com o bot paradas há 24h viram `encerrada`.
+- Relógio: "Até a próxima mensagem" considera o hotel na tela da equipe e só a reserva na página da reserva; também para nos prazos de reenvio e de alerta.
+- Pós-estadia: a nota (1 a 5, em número ou por extenso) é reconhecida antes do bot, nos dois modos; o que vier depois dela vira comentário.
+- Pós-estadia: o convite para avaliar vai na resposta a qualquer nota, sem vantagem; no protótipo, quem não responde à pesquisa não recebe o convite.
+- Painel: período padrão = os 30 dias que terminam hoje (inclusive); atalhos para 7, 30 e 90 dias e para os próximos 30 dias (ocupação já vendida).
+- Painel: resolução do bot conta só conversas iniciadas no período em que o hóspede escreveu (conversas só com mensagens da jornada ficam de fora).
+- Painel: nota média = avaliações das estadias com check-out no período.
+- Painel: receita por canal em barra empilhada (líquida + comissão = bruta), com a tabela por canal logo abaixo; cores validadas para daltonismo.
+- Modo IA: modelo pela variável `MODEL` (padrão `claude-haiku-4-5-20251001`, como pede o `CLAUDE.md`), sem thinking, `max_tokens` 2048, loop manual de tool use (até 5 rodadas), sem SDK beta.
+- Modo IA: histórico = últimas 10 mensagens sem as de sistema, começando por uma do hóspede; respostas da equipe entram marcadas como "[Resposta da equipe do hotel]".
+- Modo IA: a pesquisa pós-estadia (nota) é tratada antes do modelo, de forma determinística, igual ao modo demo.
+- Modo IA: qualquer erro da API (rede, 4xx/5xx, recusa, resposta vazia) desfaz os efeitos da tentativa e responde pelo modo demo.
+- Testes do modo IA: os marcados `llm` usam a API real e são pulados sem chave; o loop de ferramentas também é testado offline com um cliente falso.
+- Bancada: roda numa cópia temporária do banco, para as conversas de teste não entrarem no painel.
+- Bancada: CSVs com `;` (abre direto no Excel em português) e UTF-8 com BOM; a leitura também aceita `,`.
+- Bancada: o trecho esperado é comparado sem diferenciar maiúsculas e acentos; resposta com dado de outro hotel (nome, senha do wifi ou resposta da base) conta como erro e é contada à parte.
+- Bancada: a coluna `modo_resposta` mostra se a resposta veio mesmo da IA ou do modo demo (quando a API falhou).
+- Bot demo: gatilhos extras de escalonamento além dos do `CLAUDE.md`: "preço melhor", "promoção" (negociação) e "não funciona", "quebrado", "estragado", "defeito" (reclamação).
+- Textos: a preposição antes do nome do hotel vem da primeira palavra ("da Pousada…", "dos Chalés…", "do Hotel…"); respostas automáticas usam "não oferecemos"/"não aceitamos" para evitar concordância com o nome.
+- iCal de saída: um arquivo por unidade com todas as reservas ativas (de qualquer canal) dos últimos 30 dias em diante; só "Reservado", sem nome nem telefone do hóspede (LGPD).
+- iCal de entrada: por upload na tela da equipe (sem baixar URL, pois o protótipo é offline); `CalendarioExterno.ical_url` guarda "arquivo: <nome>".
+- iCal de entrada: evento já importado (mesmo UID na unidade) não duplica; eventos que já terminaram e eventos exportados por nós (UID `...@recepcao24h`) são ignorados.
+- iCal de entrada: cada bloqueio vira reserva sem hóspede e sem valor, com 2 hóspedes (ou a capacidade, se menor), alerta de valor pendente e jornada `ota_manual`.
+- Tela da equipe: consulta a cada 4 s se chegou mensagem nova ou alerta e mostra um aviso "Atualizar a tela" (não recarrega sozinha, para não apagar o que a equipe está digitando).
+- Tela inicial: mostra o roteiro da demo com as datas do exemplo de disponibilidade já calculadas.
+- O repositório git foi criado com o protótipo já pronto, então o histórico começa num commit único (e não em um por etapa).
+- Seed: reservas em andamento e futuras ganham a jornada; o que já venceu entra no chat com o horário original, e quem já recebeu a pergunta do horário "responde" (para o seed não começar com alertas de sem resposta).

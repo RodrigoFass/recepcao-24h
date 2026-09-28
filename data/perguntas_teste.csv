@@ -1,0 +1,41 @@
+hotel;pergunta;esperado
+mare-alta;Vocês aceitam cachorro?;10 kg
+mare-alta;Qual o horário do check-in?;14h
+mare-alta;Até que horas é o check-out?;12h
+mare-alta;Dá pra entrar mais cedo no quarto?;11h
+mare-alta;Posso sair mais tarde no último dia?;14h
+mare-alta;Qual a senha do wi-fi?;marealta2026
+mare-alta;O café da manhã está incluso?;7h30
+mare-alta;Tem estacionamento?;10 vagas
+mare-alta;Qual o endereço da pousada?;Rua das Gaivotas
+mare-alta;Vou chegar de madrugada, tem alguém na recepção?;cofre
+mare-alta;Criança paga?;5 anos
+mare-alta;Qual a política de cancelamento?;7 dias
+mare-alta;Aceitam pix?;Pix
+mare-alta;A piscina funciona até que horas?;20h
+mare-alta;Fica perto da praia?;150 m
+mare-alta;Faz um preço melhor pra 5 diárias?;ESCALAR
+mare-alta;O ar-condicionado do quarto não funciona;ESCALAR
+mare-alta;Quero falar com o gerente;ESCALAR
+mare-alta;Qual a capital da Argentina?;FORA_ESCOPO
+mare-alta;Me indica um filme para assistir?;FORA_ESCOPO
+serra-verde;Posso levar meu cachorro?;não aceita
+serra-verde;Que horas posso fazer check-in?;15h
+serra-verde;Qual o horário de saída?;12h
+serra-verde;Vocês fazem early check-in?;não oferece
+serra-verde;Tem late checkout?;não oferece
+serra-verde;Qual a senha da internet?;serra2026
+serra-verde;Como funciona o café da manhã?;cesta
+serra-verde;Onde estaciono o carro?;1 vaga
+serra-verde;A estrada é de terra?;estrada de terra
+serra-verde;Como faço para entrar no chalé se chegar à noite?;senha da fechadura
+serra-verde;Crianças podem se hospedar?;Chalé Família
+serra-verde;Qual o prazo para cancelar sem multa?;15 dias
+serra-verde;Como é o pagamento?;Pix
+serra-verde;Tem lareira no chalé?;lenha
+serra-verde;Tem cachoeira perto?;4 km
+serra-verde;O sinal de celular pega aí?;fraco
+serra-verde;Dá um desconto se eu ficar uma semana?;ESCALAR
+serra-verde;O chalé estava sujo quando chegamos;ESCALAR
+serra-verde;Você é um robô?;assistente virtual
+serra-verde;Quem ganhou o jogo de futebol ontem?;FORA_ESCOPO

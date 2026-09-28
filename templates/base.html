@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Recepção 24h{% endblock %}{% if hotel %} · {{ hotel.nome }}{% endif %}</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topo">
+  <div class="topo-in">
+    <a href="/" class="marca">Recepção <b>24h</b></a>
+    {% if hotel %}
+    <nav class="menu">
+      <a href="/chat?hotel={{ hotel.slug }}" class="{{ 'ativo' if pagina == 'chat' }}">Chat do hóspede</a>
+      <a href="/equipe?hotel={{ hotel.slug }}" class="{{ 'ativo' if pagina == 'equipe' }}">Equipe</a>
+      <a href="/painel?hotel={{ hotel.slug }}" class="{{ 'ativo' if pagina == 'painel' }}">Painel</a>
+      <a href="/hoteis/novo" class="{{ 'ativo' if pagina == 'cadastro' }}">Novo hotel</a>
+    </nav>
+    {% endif %}
+    <div class="topo-dir">
+      {% if hotel and hoteis|length > 1 %}
+      <form method="get" action="{{ request.url.path if pagina in ('chat', 'equipe', 'painel') else '/equipe' }}">
+        <select name="hotel" class="seletor-hotel" onchange="this.form.submit()" aria-label="Hotel">
+          {% for h in hoteis %}<option value="{{ h.slug }}" {{ 'selected' if h.id == hotel.id }}>{{ h.nome }}</option>{% endfor %}
+        </select>
+      </form>
+      {% endif %}
+      <span class="relogio" title="Relógio simulado (controles na tela da equipe)">
+        <small>relógio simulado</small>{{ agora|dia_semana }} {{ agora|data_br }}
+      </span>
+      <span class="selo selo-{{ modo_bot }}" title="{{ 'Respostas pela API da Anthropic' if modo_bot == 'ia' else 'Respostas por regras e busca na base, sem IA' }}">
+        Modo {{ 'IA' if modo_bot == 'ia' else 'demo' }}
+      </span>
+    </div>
+  </div>
+</header>
+{% if msg %}<div class="aviso aviso-ok">{{ msg }}</div>{% endif %}
+{% if erro %}<div class="aviso aviso-erro">{{ erro }}</div>{% endif %}
+<main class="{% block classe_main %}conteudo{% endblock %}">
+{% block conteudo %}{% endblock %}
+</main>
+{% block scripts %}{% endblock %}
+</body>
+</html>

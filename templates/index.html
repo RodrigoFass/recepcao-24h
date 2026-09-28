@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<section class="intro">
+  <h1>Recepção 24h</h1>
+  <p>Atendimento automático 24h, jornada de chegada, calendário único e indicadores para hotéis e pousadas pequenos.
+    A mesma plataforma atende vários hotéis, com os dados totalmente separados.</p>
+  <p class="nota">Protótipo acadêmico (GMPE · UVV). Os hotéis, hóspedes e reservas são <strong>fictícios</strong>;
+    o WhatsApp e as OTAs são simulados.</p>
+</section>
+
+{% if not lista_hoteis %}
+<div class="cartao">
+  <h2>Nenhum hotel cadastrado</h2>
+  <p>Rode <code>python seed.py</code> para criar os hotéis de exemplo, ou <a href="/hoteis/novo">cadastre um hotel</a>.</p>
+</div>
+{% endif %}
+
+<div class="grade-hoteis">
+  {% for h in lista_hoteis %}
+  <article class="cartao hotel-cartao">
+    <h2>{{ h.nome }}</h2>
+    <p class="suave">{{ h.cidade }} · {{ resumo[h.id].unidades }} unidades · {{ NOMES_MODO_CHEGADA[h.modo_chegada] }}</p>
+    <p class="suave">Check-in {{ h.checkin_hora|hora_br }} · check-out {{ h.checkout_hora|hora_br }} · {{ resumo[h.id].reservas }} reservas</p>
+    <div class="acoes">
+      <a class="botao" href="/chat?hotel={{ h.slug }}">Chat do hóspede</a>
+      <a class="botao secundario" href="/equipe?hotel={{ h.slug }}">Equipe</a>
+      <a class="botao secundario" href="/painel?hotel={{ h.slug }}">Painel</a>
+    </div>
+  </article>
+  {% endfor %}
+  <article class="cartao hotel-cartao novo">
+    <h2>Novo hotel</h2>
+    <p class="suave">Cadastro M0: horários, políticas, acomodações, canais e as perguntas-modelo que geram a base
+      de conhecimento. Depois de salvar, o hotel já funciona no chat.</p>
+    <div class="acoes"><a class="botao secundario" href="/hoteis/novo">Cadastrar hotel</a></div>
+  </article>
+</div>
+
+{% if lista_hoteis|length >= 2 %}
+<section class="cartao roteiro">
+  <h2>Roteiro da demo (2 minutos)</h2>
+  <ol>
+    <li><a href="/chat?hotel=mare-alta">Chat da Maré Alta</a>: “aceita pet?”. Depois, no
+      <a href="/chat?hotel=serra-verde">chat da Serra Verde</a>, a mesma pergunta — resposta diferente, dados separados.</li>
+    <li>Na Maré Alta: “Tem vaga de {{ sexta_demo|data_curta }} a {{ domingo_demo|data_curta }}?” → tipos livres e tarifa base × noites.</li>
+    <li>“Consegue um desconto?” → a conversa vai para a equipe; na <a href="/equipe?hotel=mare-alta">tela da equipe</a>,
+      responda e clique em “Devolver ao bot”.</li>
+    <li>Na tela da equipe, crie uma reserva direta (com telefone e consentimento) → linha do tempo → “Até a próxima
+      mensagem” algumas vezes → as mensagens aparecem no chat do hóspede.</li>
+    <li><a href="/painel?hotel=mare-alta">Painel da Maré Alta</a>: ocupação por dia da semana e receita líquida por canal.</li>
+  </ol>
+</section>
+{% endif %}
+{% endblock %}

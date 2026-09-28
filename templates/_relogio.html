@@ -1,0 +1,21 @@
+{# Controles do relógio simulado. Espera: hotel, agora, proximo_evento, voltar e (opcional) reserva_id #}
+<section class="cartao">
+  <h2>Relógio simulado</h2>
+  <p class="relogio-grande">{{ agora|dia_semana }}, {{ agora|data_br }}</p>
+  <div class="relogio-controles">
+    {% for passo, rotulo in [("1h", "Avançar 1 hora"), ("1d", "Avançar 1 dia"), ("proxima", "Até a próxima mensagem")] %}
+    <form method="post" action="/relogio/avancar">
+      <input type="hidden" name="hotel" value="{{ hotel.slug }}">
+      <input type="hidden" name="passo" value="{{ passo }}">
+      <input type="hidden" name="voltar" value="{{ voltar }}">
+      {% if reserva_id %}<input type="hidden" name="reserva_id" value="{{ reserva_id }}">{% endif %}
+      <button class="botao {{ '' if passo == 'proxima' else 'secundario' }}">{{ rotulo }}</button>
+    </form>
+    {% endfor %}
+  </div>
+  <p class="suave pequeno">
+    {% if proximo_evento %}Próximo envio {{ 'desta reserva' if reserva_id else 'deste hotel' }}: {{ proximo_evento|data_br }}.
+    {% else %}Nenhum envio agendado {{ 'para esta reserva' if reserva_id else 'neste hotel' }}.{% endif %}
+    Ao avançar, as mensagens vencidas entram no chat do hóspede. O relógio vale para todos os hotéis.
+  </p>
+</section>
