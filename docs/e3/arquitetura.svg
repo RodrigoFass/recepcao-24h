@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 520" width="1060" height="520" font-family="Segoe UI, system-ui, Arial, sans-serif">
+<title>Arquitetura de produção da Recepção 24h</title>
+<defs><marker id="ponta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="#6b7a89"/></marker></defs>
+<rect width="1060" height="520" fill="#ffffff"/>
+<line x1="170.0" y1="89.0" x2="230.0" y2="88.6" stroke="#6b7a89" stroke-width="1.6" marker-end="url(#ponta)" marker-start="url(#ponta)"/>
+<line x1="410.0" y1="99.8" x2="480.0" y2="109.1" stroke="#6b7a89" stroke-width="1.6" marker-end="url(#ponta)" marker-start="url(#ponta)"/>
+<line x1="730.0" y1="99.9" x2="830.0" y2="104.5" stroke="#6b7a89" stroke-width="1.6" marker-end="url(#ponta)" marker-start="url(#ponta)"/>
+<line x1="730.0" y1="164.9" x2="830.0" y2="196.4" stroke="#6b7a89" stroke-width="1.6" marker-end="url(#ponta)" marker-start="url(#ponta)"/>
+<line x1="891.1" y1="360.0" x2="721.5" y2="221.0" stroke="#6b7a89" stroke-width="1.6" marker-end="url(#ponta)" marker-start="url(#ponta)"/>
+<line x1="480.0" y1="195.9" x2="383.9" y2="250.0" stroke="#6b7a89" stroke-width="1.6" marker-end="url(#ponta)"/>
+<line x1="862.1" y1="274.0" x2="664.0" y2="395.0" stroke="#6b7a89" stroke-width="1.6" marker-end="url(#ponta)"/>
+<line x1="480.0" y1="431.7" x2="410.0" y2="432.0" stroke="#6b7a89" stroke-width="1.6" marker-end="url(#ponta)"/>
+<rect x="20" y="62" width="150" height="55" rx="8" fill="#e3f1f1" stroke="#0e6b6b" stroke-width="1.5"/>
+<text x="30" y="82" font-size="13.5" font-weight="700" fill="#0e6b6b">Hóspede</text>
+<line x1="20" y1="91" x2="170" y2="91" stroke="#0e6b6b" stroke-width="1"/>
+<text x="30" y="108" font-size="11.5" fill="#1d2733">WhatsApp no celular</text>
+<rect x="230" y="52" width="180" height="72" rx="8" fill="#f3f4f6" stroke="#b8c0c8" stroke-width="1.5"/>
+<text x="240" y="72" font-size="13.5" font-weight="700" fill="#4b5563">WhatsApp Cloud API</text>
+<line x1="230" y1="81" x2="410" y2="81" stroke="#b8c0c8" stroke-width="1"/>
+<text x="240" y="98" font-size="11.5" fill="#1d2733">Meta · número do hotel</text>
+<text x="240" y="115" font-size="11.5" fill="#1d2733">cobra direto do hotel</text>
+<rect x="480" y="30" width="250" height="191" rx="8" fill="#ffffff" stroke="#0e6b6b" stroke-width="1.5"/>
+<text x="490" y="50" font-size="13.5" font-weight="700" fill="#0e6b6b">n8n (VPS, auto-hospedado)</text>
+<line x1="480" y1="59" x2="730" y2="59" stroke="#0e6b6b" stroke-width="1"/>
+<text x="490" y="76" font-size="11.5" fill="#1d2733" font-weight="600">1. Atendimento 24h</text>
+<text x="490" y="93" font-size="11.5" fill="#1d2733">   webhook → IA → resposta</text>
+<text x="490" y="110" font-size="11.5" fill="#1d2733" font-weight="600">2. Jornada de chegada</text>
+<text x="490" y="127" font-size="11.5" fill="#1d2733">   agendador das 6 mensagens</text>
+<text x="490" y="144" font-size="11.5" fill="#1d2733" font-weight="600">3. Calendário único</text>
+<text x="490" y="161" font-size="11.5" fill="#1d2733">   iCal a cada 2h + CSV</text>
+<text x="490" y="178" font-size="11.5" fill="#1d2733" font-weight="600">4. Pós-estadia</text>
+<text x="490" y="195" font-size="11.5" fill="#1d2733">   nota 1–5 + convite</text>
+<text x="490" y="212" font-size="11.5" fill="#1d2733" font-weight="600">5. Alertas para a equipe</text>
+<rect x="830" y="30" width="210" height="106" rx="8" fill="#f3f4f6" stroke="#b8c0c8" stroke-width="1.5"/>
+<text x="840" y="50" font-size="13.5" font-weight="700" fill="#4b5563">API da Anthropic</text>
+<line x1="830" y1="59" x2="1040" y2="59" stroke="#b8c0c8" stroke-width="1"/>
+<text x="840" y="76" font-size="11.5" fill="#1d2733">Claude Haiku 4.5 + ferramentas:</text>
+<text x="840" y="93" font-size="11.5" fill="#1d2733">consultar_disponibilidade</text>
+<text x="840" y="110" font-size="11.5" fill="#1d2733">escalar_para_humano</text>
+<text x="840" y="127" font-size="11.5" fill="#1d2733">registrar_hora_chegada</text>
+<rect x="830" y="185" width="210" height="89" rx="8" fill="#fff4d6" stroke="#e0b85a" stroke-width="1.5"/>
+<text x="840" y="205" font-size="13.5" font-weight="700" fill="#8a5a00">Supabase (Postgres)</text>
+<line x1="830" y1="214" x2="1040" y2="214" stroke="#e0b85a" stroke-width="1"/>
+<text x="840" y="231" font-size="11.5" fill="#1d2733">região São Paulo (sa-east-1)</text>
+<text x="840" y="248" font-size="11.5" fill="#1d2733">hotel_id em toda tabela</text>
+<text x="840" y="265" font-size="11.5" fill="#1d2733">Row Level Security</text>
+<rect x="830" y="360" width="210" height="72" rx="8" fill="#f3f4f6" stroke="#b8c0c8" stroke-width="1.5"/>
+<text x="840" y="380" font-size="13.5" font-weight="700" fill="#4b5563">Airbnb · Booking.com</text>
+<line x1="830" y1="389" x2="1040" y2="389" stroke="#b8c0c8" stroke-width="1"/>
+<text x="840" y="406" font-size="11.5" fill="#1d2733">iCal de entrada e de saída</text>
+<text x="840" y="423" font-size="11.5" fill="#1d2733">CSV de reservas (valor)</text>
+<rect x="230" y="250" width="180" height="72" rx="8" fill="#e3f1f1" stroke="#0e6b6b" stroke-width="1.5"/>
+<text x="240" y="270" font-size="13.5" font-weight="700" fill="#0e6b6b">Equipe do hotel</text>
+<line x1="230" y1="279" x2="410" y2="279" stroke="#0e6b6b" stroke-width="1"/>
+<text x="240" y="296" font-size="11.5" fill="#1d2733">conversas escaladas</text>
+<text x="240" y="313" font-size="11.5" fill="#1d2733">alertas (WhatsApp/e-mail)</text>
+<rect x="480" y="395" width="250" height="72" rx="8" fill="#ffffff" stroke="#0e6b6b" stroke-width="1.5"/>
+<text x="490" y="415" font-size="13.5" font-weight="700" fill="#0e6b6b">Painel web</text>
+<line x1="480" y1="424" x2="730" y2="424" stroke="#0e6b6b" stroke-width="1"/>
+<text x="490" y="441" font-size="11.5" fill="#1d2733">ocupação · ADR · RevPAR</text>
+<text x="490" y="458" font-size="11.5" fill="#1d2733">receita líquida por canal</text>
+<rect x="230" y="405" width="180" height="55" rx="8" fill="#e3f1f1" stroke="#0e6b6b" stroke-width="1.5"/>
+<text x="240" y="425" font-size="13.5" font-weight="700" fill="#0e6b6b">Dono / gestor</text>
+<line x1="230" y1="434" x2="410" y2="434" stroke="#0e6b6b" stroke-width="1"/>
+<text x="240" y="451" font-size="11.5" fill="#1d2733">decide preço e promoção</text>
+<rect x="419.2" y="77.6" width="56.1" height="18" rx="4" fill="#ffffff" opacity="0.95"/>
+<text x="447.2" y="91.1" font-size="11" text-anchor="middle" fill="#52606d">webhook</text>
+<rect x="727.5" y="75.2" width="106.5" height="18" rx="4" fill="#ffffff" opacity="0.95"/>
+<text x="780.8" y="88.7" font-size="11" text-anchor="middle" fill="#52606d">prompt do hotel</text>
+<rect x="758.2" y="170.7" width="43.5" height="18" rx="4" fill="#ffffff" opacity="0.95"/>
+<text x="780.0" y="184.2" font-size="11" text-anchor="middle" fill="#52606d">dados</text>
+<rect x="787.7" y="280.5" width="37.2" height="18" rx="4" fill="#ffffff" opacity="0.95"/>
+<text x="806.3" y="294.0" font-size="11" text-anchor="middle" fill="#52606d">iCal</text>
+<rect x="373.5" y="198.1" width="100.2" height="18" rx="4" fill="#ffffff" opacity="0.95"/>
+<text x="423.6" y="211.6" font-size="11" text-anchor="middle" fill="#52606d">escala / avisa</text>
+<rect x="731.8" y="324.5" width="62.4" height="18" rx="4" fill="#ffffff" opacity="0.95"/>
+<text x="763.0" y="338.0" font-size="11" text-anchor="middle" fill="#52606d">consulta</text>
+<text x="20" y="505" font-size="11.5" fill="#52606d">Protótipo: FastAPI + SQLite simulam o WhatsApp, o n8n e as OTAs com o mesmo modelo de dados. Produção: componentes acima, um número de WhatsApp por hotel.</text>
+</svg>

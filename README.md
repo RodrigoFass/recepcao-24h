@@ -229,11 +229,21 @@ templates/  static/    telas; Chart.js servido localmente em static/vendor/
 seed.py                dados de exemplo
 bancada.py             teste de bancada
 data/                  banco, exemplo.ics e perguntas_teste.csv
-docs/                  PDF com as telas, capturas (docs/telas/*.png), vídeo da demo e relatório de validação
-ferramentas/           gravar_demo.py: grava o vídeo do roteiro (dependências em requirements-dev.txt)
+docs/                  Entrega 3 (E3_arquitetura.md/.pdf, diagramas em docs/e3/), PDF com as telas, capturas
+                       (docs/telas/*.png), vídeo da demo e relatório de validação
+ferramentas/           gravar_demo.py (vídeo do roteiro), diagramas.py (SVGs da E3), md_para_pdf.py (Markdown → PDF);
+                       dependências em requirements-dev.txt
 tests/                 testes (pytest)
 DECISOES.md            decisões tomadas na construção
 ```
+
+## Documentos do trabalho
+
+- [docs/E3_arquitetura.md](docs/E3_arquitetura.md) (e o [PDF](docs/E3_arquitetura.pdf)) — Entrega 3: arquitetura de
+  produção, modelo de dados, formulário M0, cotação de custos com fonte e data, benchmark de preço e regras atuais do
+  Airbnb, do Booking.com e do WhatsApp.
+- [docs/validacao.md](docs/validacao.md) — teste de bancada do bot.
+- [docs/Recepcao24h_telas_do_prototipo.pdf](docs/Recepcao24h_telas_do_prototipo.pdf) — telas do protótipo.
 
 ## Fora do escopo
 
