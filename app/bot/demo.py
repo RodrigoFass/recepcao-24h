@@ -31,7 +31,8 @@ GATILHOS = [
     (r"\babatiment", MOTIVO_DESCONTO),
     (r"\bmais barat", MOTIVO_DESCONTO),
     (r"\bnegoci", MOTIVO_DESCONTO),
-    (r"\bpreco melhor|\bpromoc", MOTIVO_DESCONTO),
+    (r"\bpreco melhor|\bpromoc|\bprecinho|\bcamarada\b|\bmais em conta|\bpor menos\b|\bbaixar (o )?(preco|valor)",
+     MOTIVO_DESCONTO),
     (r"\breclam", MOTIVO_RECLAMACAO),
     (r"\bpessim", MOTIVO_RECLAMACAO),
     (r"\bsuj[oa]s?\b|\bsujeira", MOTIVO_RECLAMACAO),
@@ -42,6 +43,9 @@ GATILHOS = [
     (r"\bpessoa\b", MOTIVO_HUMANO),
     (r"\bgerente", MOTIVO_HUMANO),
     (r"\bfalar com alguem\b", MOTIVO_HUMANO),
+    (r"\bfalar com (a |o )?(recepcao|equipe|dono|dona|responsavel|proprietari\w*|funcionari\w*|atendimento|gente)\b",
+     MOTIVO_HUMANO),
+    (r"\bme (liga|ligue|ligar)\b|\bligar pra mim\b", MOTIVO_HUMANO),
 ]
 
 RE_IDENTIDADE = re.compile(
@@ -62,7 +66,11 @@ RE_RESERVA = re.compile(
     r"diarias?|precos?|valor|valores|quanto|custa|tarifas?|pernoite|estadia|lugar)\b"
 )
 RE_PEDIDO_RESERVA = re.compile(r"\b(reserv\w*|vagas?|disponi\w*|livres?|hospedar|lugar)\b")
-RE_PRECO = re.compile(r"\b(precos?|valor|valores|quanto|custa|tarifas?|diarias?)\b")
+RE_PRECO = re.compile(r"\b(precos?|valor|valores|custa|tarifas?|diarias?)\b|\bquanto (custa|fica|sai|cobra\w*|seria)\b")
+# pergunta (e não informação): "dá pra chegar às 10h?" não é o hóspede avisando o horário
+RE_PERGUNTA = re.compile(r"^(da pra|da para|posso|podemos|pode|tem como|consigo|conseguimos|e possivel|tudo bem se)\b")
+# "tem jacuzzi?", "vocês têm academia?": pergunta sobre a estrutura do hotel
+RE_TEM_ESTRUTURA = re.compile(r"^(voces |vcs |vc |aqui |ai )?(tem|possui|possuem|oferece|oferecem)\b(?! como)")
 RE_PESSOAS = re.compile(r"\b(\d{1,2})\s*(pessoas|pessoa|hospedes|adultos)\b")
 RE_HORA = re.compile(r"\b(\d{1,2})\s*(?:horas?|hs|h|:)\s*(\d{2})?\b")
 RE_CHEGADA = re.compile(r"\bcheg\w*|\bprevis\w*|\bestarei ai\b|\bestaremos ai\b")
@@ -85,6 +93,7 @@ DOMINIO = [
     "travesseiro", "colchao", "lencol", "barulho", "silencio", "trilha", "cachoeira", "passeio", "turis",
     "estrada", "endereco", "localiz", "mapa", "uber", "taxi", "onibus", "aeroporto", "rodoviaria", "transfer",
     "sauna", "academia", "hidro", "equipe", "funcionari", "dono", "proprietari", "zelador", "hospedagem",
+    "jacuzzi", "ofuro", "spa", "banheira", "massag", "bicicleta", "caiaque", "brinquedo",
 ]
 DOMINIO_EXATO = {"tv", "mar", "ar", "gps"}
 
@@ -101,7 +110,8 @@ def _casa_palavra(palavra: str, tokens: list[str]) -> bool:
             return True
         if len(palavra) >= 4 and t.startswith(palavra):
             return True
-        if len(palavra) >= 6 and len(t) >= 6 and SequenceMatcher(None, palavra, t).ratio() >= 0.85:
+        # pequenos erros de digitação; 0,88 separa "estacionamneto" (casa) de "entrada" x "estrada" (não casa)
+        if len(palavra) >= 6 and len(t) >= 6 and SequenceMatcher(None, palavra, t).ratio() >= 0.88:
             return True
     return False
 
@@ -323,13 +333,17 @@ def responder(db, hotel, conversa, texto: str) -> str:
     # 4. horário de chegada
     hora = extrair_hora(t)
     if hora and (RE_CHEGADA.search(t) or _aguardando_hora_chegada(db, conversa)):
-        res = ferramentas.registrar_hora_chegada(db, conversa, hora)
-        if res["ok"]:
-            return _texto_hora_registrada(db, hotel, res)
-        return (
-            "Não encontrei uma reserva ativa para este telefone. Se você já reservou, a equipe pode verificar. "
-            "Quer que eu chame alguém da equipe?"
-        )
+        tem_reserva = ferramentas.reserva_ativa_do_telefone(db, conversa.hotel_id, conversa.telefone) is not None
+        eh_pergunta = "?" in texto or RE_PERGUNTA.match(t)
+        # sem reserva, "dá pra chegar às 10h?" é uma dúvida: segue para a base de conhecimento
+        if tem_reserva or not eh_pergunta:
+            res = ferramentas.registrar_hora_chegada(db, conversa, hora)
+            if res["ok"]:
+                return _texto_hora_registrada(db, hotel, res)
+            return (
+                "Não encontrei uma reserva ativa para este telefone. Se você já reservou, a equipe pode verificar. "
+                "Quer que eu chame alguém da equipe?"
+            )
 
     # 5. base de conhecimento
     item = buscar_na_base(db, hotel.id, t)
@@ -346,6 +360,6 @@ def responder(db, hotel, conversa, texto: str) -> str:
         )
 
     # 6. sem correspondência
-    if _do_dominio(t):
+    if _do_dominio(t) or RE_TEM_ESTRUTURA.match(t):
         return _escalar(db, conversa, MOTIVO_SEM_RESPOSTA)
     return textos.recusa(hotel)

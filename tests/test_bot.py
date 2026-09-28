@@ -157,6 +157,17 @@ def test_chego_as_23h(db, slug):
     db.refresh(reserva)
     assert reserva.hora_prevista_chegada == "23:00"
 
+    # com reserva, até em forma de pergunta o horário é registrado
+    perguntar(db, slug, "Dá pra chegar às 21h?", reserva.hospede.telefone)
+    db.refresh(reserva)
+    assert reserva.hora_prevista_chegada == "21:00"
+
+
+def test_pergunta_de_horario_sem_reserva_vai_para_a_base(db):
+    conv, r = perguntar(db, "mare-alta", "Dá pra chegar às 10h da manhã e já entrar no quarto?")
+    assert "11h" in r  # resposta do early check-in, e não "não encontrei sua reserva"
+    assert conv.status == "bot"
+
 
 # ------------------------------------------------------------ isolamento
 

@@ -17,13 +17,14 @@ PERGUNTAS_MODELO = [
         "categoria": "horarios",
         "pergunta": "Qual o horário de check-in e de check-out?",
         "palavras_chave": "checkin, checkout, horario checkin, horario checkout, hora checkin, hora checkout, "
-        "horario entrada, horario saida, horas entrar, horas sair, horas cheg, horas liberar quarto",
+        "horario entrada, horario saida, horas entrar, horas sair, horas cheg, horas libera, entrar, sair, desocupar",
         "automatica": True,
     },
     {
         "categoria": "early_checkin",
         "pergunta": "Posso fazer early check-in (entrar mais cedo)?",
-        "palavras_chave": "early, early checkin, checkin antecipado, antecipad, cedo, entrar antes, cheg antes",
+        "palavras_chave": "early, early checkin, checkin antecipado, antecipad, cedo, entrar antes, cheg antes, "
+        "cheg cedo, entrar cedo, cheg manha, entrar manha",
         "automatica": True,
     },
     {
@@ -36,7 +37,7 @@ PERGUNTAS_MODELO = [
     {
         "categoria": "pet",
         "pergunta": "Vocês aceitam pet?",
-        "palavras_chave": "pet, pets, cachorr, cao, caes, gato, gata, animal, animais, bicho, estimacao, "
+        "palavras_chave": "pet, pets, cachorr, cao, caes, gato, gata, gatinh, animal, animais, bicho, estimacao, "
         "cadela, dog",
         "ajuda": "Aceita? Porte máximo, quantos por quarto, taxa.",
     },
@@ -69,6 +70,7 @@ PERGUNTAS_MODELO = [
         "categoria": "chegada_fora_horario",
         "pergunta": "Posso chegar à noite ou fora do horário da recepção?",
         "palavras_chave": "cheg tarde, cheg noite, madrugada, fora horario, cofre, chave, cheg depois, "
+        "entrada funciona, pegar chave, pego chave, receb cheg, "
         "recepcao, fechadura, senha porta, senha fechadura, autoatendimento, 24h, 24 horas",
         "ajuda": "Até que horas tem gente para receber? Depois disso, como o hóspede entra?",
     },
@@ -81,7 +83,8 @@ PERGUNTAS_MODELO = [
     {
         "categoria": "cancelamento",
         "pergunta": "Qual a política de cancelamento?",
-        "palavras_chave": "cancel, reembolso, desistir, desistencia, remarcar, devolucao, estorno",
+        "palavras_chave": "cancel, reembolso, desist, desist reserva, perco reserva, multa, remarcar, devolucao, "
+        "estorno",
         "ajuda": "Até quando é grátis e o que acontece depois.",
     },
     {

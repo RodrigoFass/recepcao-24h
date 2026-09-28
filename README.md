@@ -184,8 +184,11 @@ automático. No `esperado`, use um trecho que precisa aparecer na resposta (sem 
 por hotel e quantas respostas trouxeram dado de outro hotel. A bancada roda numa cópia do banco, então não suja o
 painel.
 
-**Troque as ~40 perguntas iniciais pelas perguntas da pesquisa de campo.** Com o CSV inicial, o modo demo acerta
-40 de 40, sem nenhuma resposta com dado de outro hotel.
+Há três baterias em `data/` (use `--entrada` para escolher): `perguntas_teste.csv` (40, a inicial),
+`perguntas_variadas.csv` (60, com o jeito real de escrever no WhatsApp) e `perguntas_controle.csv` (30, escrita
+depois dos ajustes e nunca usada para ajustar o bot). No modo demo: 40/40, 60/60 e **28/30 (93%) na de controle**,
+sem nenhuma resposta com dado de outro hotel. Detalhes, erros corrigidos e limitações em
+[docs/validacao.md](docs/validacao.md).
 
 ## Testes automatizados
 

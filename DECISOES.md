@@ -69,4 +69,8 @@ Uma linha por decisão (as mais simples que atendem ao `CLAUDE.md`).
 - Tela da equipe: consulta a cada 4 s se chegou mensagem nova ou alerta e mostra um aviso "Atualizar a tela" (não recarrega sozinha, para não apagar o que a equipe está digitando).
 - Tela inicial: mostra o roteiro da demo com as datas do exemplo de disponibilidade já calculadas.
 - O repositório git foi criado com o protótipo já pronto, então o histórico começa num commit único (e não em um por etapa).
+- Bot demo: sem reserva ativa, pergunta com horário ("dá pra chegar às 10h?") vai para a base, em vez de tentar registrar a chegada; com reserva, registra.
+- Bot demo: "quanto" só indica preço em "quanto custa/fica/sai/cobra"; "tem/possui/oferece …?" sem resposta na base conta como assunto do hotel (escala).
+- Bot demo: similaridade mínima para erro de digitação subiu de 0,85 para 0,88 ("entrada" deixou de casar com "estrada").
+- Validação: a bateria de controle (`perguntas_controle.csv`) foi escrita depois dos ajustes e não é usada para ajustar o bot; o teste só exige que ela não piore (≥ 28/30).
 - Seed: reservas em andamento e futuras ganham a jornada; o que já venceu entra no chat com o horário original, e quem já recebeu a pergunta do horário "responde" (para o seed não começar com alertas de sem resposta).

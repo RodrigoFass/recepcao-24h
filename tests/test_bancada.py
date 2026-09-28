@@ -15,6 +15,23 @@ def test_bancada_modo_demo_acerta_o_csv_inicial(db):
     assert "TOTAL" in bancada.resumo(resultados)
 
 
+def test_bancada_perguntas_variadas_acerta_tudo(db):
+    """Jeito real de escrever no WhatsApp (abreviações, erros, gírias). Serviu para ajustar o bot."""
+    resultados = bancada.rodar(bancada.ler_perguntas(bancada.RAIZ / "data" / "perguntas_variadas.csv"), "demo")
+    assert len(resultados) == 60
+    erros = [(r["pergunta"], r["resposta"]) for r in resultados if r["acerto"] != "sim"]
+    assert not erros, erros
+
+
+def test_bancada_controle_nao_piora(db):
+    """Bateria de controle, escrita depois dos ajustes e nunca usada para ajustar: 28/30 na medição original."""
+    resultados = bancada.rodar(bancada.ler_perguntas(bancada.RAIZ / "data" / "perguntas_controle.csv"), "demo")
+    acertos = sum(r["acerto"] == "sim" for r in resultados)
+    assert len(resultados) == 30
+    assert acertos >= 28
+    assert all(r["dado_de_outro_hotel"] == "não" for r in resultados)
+
+
 def test_avaliacao_automatica():
     assert bancada.avaliar("ESCALAR", "Vou passar para a equipe", "humano")
     assert not bancada.avaliar("ESCALAR", "Aceitamos pets", "bot")

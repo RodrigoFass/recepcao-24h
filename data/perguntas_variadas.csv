@@ -1,0 +1,61 @@
+hotel;pergunta;esperado
+mare-alta;vcs aceitam dog?;10 kg
+mare-alta;posso levar meu gatinho;10 kg
+mare-alta;que horas posso entrar no quarto?;14h
+mare-alta;qual horario do checkout;12h
+mare-alta;da pra chegar umas 10h da manha e ja entrar no quarto?;11h
+mare-alta;o cafe ta incluso na diaria?;7h30
+mare-alta;tem garagem?;10 vagas
+mare-alta;qual a senha da internet;marealta2026
+mare-alta;vcs ficam onde?;Rua das Gaivotas
+mare-alta;é longe da praia?;150 m
+mare-alta;tem piscinaa?;20h
+mare-alta;crianca de 3 anos paga?;5 anos
+mare-alta;tem berço?;berço
+mare-alta;se eu desistir da reserva perco o dinheiro?;7 dias
+mare-alta;aceita cartao de credito?;cartão
+mare-alta;vou chegar meia noite, tem alguem pra me receber?;cofre
+mare-alta;qual o horario de silencio;22h
+mare-alta;tem toalha pra praia?;toalha
+mare-alta;o que tem pra fazer ai perto;orla
+mare-alta;quanto custa a diaria?;R$ 280
+mare-alta;tem vaga pro feriado?;datas
+mare-alta;quero reservar pra 2 pessoas;datas
+mare-alta;o chuveiro do meu quarto ta frio;ESCALAR
+mare-alta;tem como fazer um precinho camarada?;ESCALAR
+mare-alta;quero falar com a recepcao;ESCALAR
+mare-alta;vc é um robo?;assistente virtual
+mare-alta;qual a previsao do tempo pro fim de semana;FORA_ESCOPO
+mare-alta;me recomenda um bom filme;FORA_ESCOPO
+mare-alta;quanto é 2+2?;FORA_ESCOPO
+mare-alta;oi, tudo bem?;assistente virtual
+serra-verde;aceitam cachorro de pequeno porte?;não aceitamos
+serra-verde;que horas libera o chale?;15h
+serra-verde;posso chegar mais cedo?;não oferecemos early
+serra-verde;da pra sair as 14h no domingo?;12h
+serra-verde;qual a senha do wi-fi;serra2026
+serra-verde;o celular pega bem ai?;fraco
+serra-verde;como funciona a entrada no chale?;senha da fechadura
+serra-verde;tem estacionamento?;1 vaga
+serra-verde;a estrada é boa? da pra ir de carro baixo?;estrada de terra
+serra-verde;tem lareira?;lenha
+serra-verde;a lenha é inclusa?;lenha
+serra-verde;o cafe e servido onde?;cesta
+serra-verde;posso levar meu bebe?;Chalé Família
+serra-verde;aceitam pix?;Pix
+serra-verde;qual o prazo pra cancelar;15 dias
+serra-verde;tem cachoeira perto?;4 km
+serra-verde;o que fazer na regiao?;trilhas
+serra-verde;tem roupa de cama?;roupa de cama
+serra-verde;a lareira nao funciona;ESCALAR
+serra-verde;o chale ta sujo;ESCALAR
+serra-verde;faz mais barato pra semana toda?;ESCALAR
+serra-verde;quero falar com o dono;ESCALAR
+serra-verde;tem jacuzzi?;ESCALAR
+serra-verde;vcs tem academia?;ESCALAR
+serra-verde;tem wifi nos chales?;serra2026
+serra-verde;quem é o presidente do brasil?;FORA_ESCOPO
+serra-verde;me conta uma piada;FORA_ESCOPO
+serra-verde;voce e uma ia?;assistente virtual
+serra-verde;obrigado!;Por nada
+serra-verde;boa noite;assistente virtual
