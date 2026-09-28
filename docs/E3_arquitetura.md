@@ -137,7 +137,7 @@ entre o PMS básico e as soluções completas, e é complementar ao PMS que o ho
 | Só pode mandar mensagem a quem deu o número **e** autorizou receber mensagens (opt-in) | Política do WhatsApp Business | Reserva direta registra o consentimento com data; sem ele, a jornada vai pela OTA (texto para copiar) |
 | Fora da janela de 24h após a última mensagem do hóspede, só modelos aprovados | Política do WhatsApp Business | As 6 mensagens da jornada viram modelos de "utilidade" a aprovar |
 | Cobrança por mensagem desde 01/07/2025; utilidade no Brasil R$ 0,0350 | Tabela de preços BRL (vigente em 01/07/2026) | Custo no orçamento (seção 5), pago pelo hotel |
-| **Desde 01/10/2026, as respostas dentro da janela também são cobradas**, ao preço de utilidade | Meta for Developers — mensagens sem modelo | Uma resposta completa por mensagem; volume visível no painel |
+| **A partir de 01/10/2026, as respostas dentro da janela também passam a ser cobradas**, ao preço de utilidade | Meta for Developers — mensagens sem modelo | Uma resposta completa por mensagem; volume visível no painel |
 | Automação é permitida desde que haja caminho claro e rápido para um humano | Política do WhatsApp Business | Pedido de atendente, reclamação e desconto passam para a equipe; o bot oferece chamar a equipe |
 | Seção 4.7 dos termos (atualizados em 23/09/2026): IA como **funcionalidade principal** é proibida; IA auxiliar ao atendimento é permitida, sem usar os dados do WhatsApp para treinar modelos | Termos da Meta para a WhatsApp Business Platform | O bot responde só sobre o hotel e recusa o resto; as conversas não são usadas para treinar modelos |
 
