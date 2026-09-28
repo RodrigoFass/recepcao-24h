@@ -1,0 +1,6 @@
+# Só para as ferramentas de apoio (vídeo da demo e conferência de PDFs); o protótipo não precisa.
+-r requirements.txt
+playwright>=1.45
+imageio-ffmpeg>=0.5
+pypdfium2>=4.30
+pillow>=10.0

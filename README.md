@@ -95,7 +95,18 @@ Extras, se sobrar tempo: responder "chego às 23h" na conversa de quem chega ama
 unidade 101 (tela da equipe → Calendário) e ver o alerta de conflito; cadastrar um hotel novo com "Preencher com um
 exemplo" e conversar com ele no chat.
 
-**Plano B**: sem internet ou sem chave, tudo funciona em modo demo.
+**Plano B**: sem internet ou sem chave, tudo funciona em modo demo. Há também um vídeo desse roteiro, com
+legendas, em [docs/video/demo_recepcao24h.mp4](docs/video/demo_recepcao24h.mp4) (1min09s, sem áudio: dá para
+narrar por cima), e o PDF com as telas em [docs/](docs/).
+
+Para regravar o vídeo com as datas do dia (precisa do Google Chrome):
+
+```powershell
+pip install -r requirements-dev.txt
+python ferramentas/gravar_demo.py
+```
+
+O script cria um banco temporário, sobe o servidor, executa o roteiro sozinho e salva o MP4; não mexe no seu banco.
 
 ---
 
@@ -218,7 +229,8 @@ templates/  static/    telas; Chart.js servido localmente em static/vendor/
 seed.py                dados de exemplo
 bancada.py             teste de bancada
 data/                  banco, exemplo.ics e perguntas_teste.csv
-docs/                  PDF com as telas do protótipo e as capturas (docs/telas/*.png) para os slides
+docs/                  PDF com as telas, capturas (docs/telas/*.png), vídeo da demo e relatório de validação
+ferramentas/           gravar_demo.py: grava o vídeo do roteiro (dependências em requirements-dev.txt)
 tests/                 testes (pytest)
 DECISOES.md            decisões tomadas na construção
 ```
