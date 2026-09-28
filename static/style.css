@@ -95,7 +95,7 @@ textarea { width: 100%; min-height: 3.2rem; resize: vertical; }
 .campo small { font-weight: 400; color: var(--suave); }
 .campo-check { display: flex; gap: 0.4rem; align-items: center; font-size: 0.9rem; margin-bottom: 0.7rem; }
 .linha-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0 0.8rem; }
-fieldset { border: 1px solid var(--borda); border-radius: var(--raio); padding: 0.8rem 1rem 0.4rem; margin: 0 0 1rem; }
+fieldset { border: 1px solid var(--borda); border-radius: var(--raio); padding: 0.8rem 1rem 0.4rem; margin: 0 0 1rem; min-width: 0; }
 legend { font-weight: 700; padding: 0 0.4rem; }
 .form-inline { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; margin: 0; }
 .form-inline input { width: 7rem; }
@@ -157,7 +157,7 @@ a.chip { text-decoration: none; color: inherit; display: inline-block; }
 .composer { display: flex; gap: 0.5rem; padding: 0.6rem; background: #fff; border-top: 1px solid var(--borda); }
 .composer input { flex: 1; border-radius: 999px; padding: 0.5rem 0.9rem; }
 .composer .botao { border-radius: 999px; }
-@media (max-width: 900px) { .chat-layout { grid-template-columns: 1fr; } .celular { height: 70vh; } }
+@media (max-width: 900px) { .chat-layout { grid-template-columns: 1fr; } .celular { height: 75vh; order: -1; } }
 
 /* ---------- equipe */
 .conversa-escalada { border: 1px solid var(--borda); border-radius: var(--raio); padding: 0.7rem 0.8rem; margin-bottom: 0.8rem; }
