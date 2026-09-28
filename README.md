@@ -223,3 +223,10 @@ DECISOES.md            decisões tomadas na construção
 ## Fora do escopo
 
 WhatsApp real, integração real com Airbnb/Booking, pagamento, login completo (basta o seletor de hotel) e deploy.
+
+## Licença
+
+Copyright (c) 2026 Rodrigo Fassarella Leite. **Todos os direitos reservados.** O repositório é público só para
+consulta e avaliação acadêmica: sem autorização por escrito do autor, é proibido usar, copiar, modificar, criar
+obras derivadas (inclusive usar o código como base para um software igual ou semelhante), distribuir ou oferecer
+como serviço. Veja [LICENSE](LICENSE).

@@ -1,0 +1,52 @@
+Recepção 24h — protótipo
+Copyright (c) 2026 Rodrigo Fassarella Leite. Todos os direitos reservados.
+
+LICENÇA: TODOS OS DIREITOS RESERVADOS (USO PROIBIDO)
+
+1. Este repositório é público somente para consulta e avaliação acadêmica do trabalho da
+   disciplina Gestão de Micro e Pequenas Empresas (Sistemas de Informação, UVV). O fato de o
+   código estar visível NÃO concede nenhuma licença, autorização ou direito de uso, expresso
+   ou implícito.
+
+2. Sem autorização prévia, expressa e por escrito do autor, é PROIBIDO:
+   a) usar, executar, instalar, copiar ou reproduzir o código-fonte, a documentação, as telas
+      ou qualquer outro conteúdo deste repositório, no todo ou em parte;
+   b) modificar, adaptar, traduzir, reescrever ou criar obras derivadas a partir deles,
+      inclusive usá-los como base, modelo, cópia ou referência para desenvolver software,
+      produto ou serviço igual ou semelhante;
+   c) distribuir, publicar, sublicenciar, vender, alugar, emprestar ou disponibilizar a
+      terceiros o código ou qualquer obra derivada, inclusive como serviço pela internet
+      (SaaS) ou dentro de outro produto;
+   d) usar o conteúdo deste repositório para treinar, ajustar ou avaliar modelos de
+      inteligência artificial;
+   e) remover, ocultar ou alterar este aviso de direitos autorais.
+
+3. É permitido apenas visualizar o conteúdo no GitHub e realizar os atos que os Termos de
+   Serviço do GitHub garantem aos usuários da plataforma (como ver o código e criar um fork
+   dentro do próprio GitHub). Esses atos não autorizam nenhum dos usos proibidos no item 2.
+
+4. Componentes de terceiros não fazem parte desta obra e seguem as licenças dos seus autores:
+   o arquivo static/vendor/chart.umd.min.js (Chart.js, licença MIT) e as bibliotecas listadas
+   em requirements.txt.
+
+5. Os hotéis, pessoas, telefones, endereços, reservas e demais dados de exemplo são fictícios.
+
+6. O conteúdo é fornecido "no estado em que se encontra", sem garantias de qualquer natureza.
+   O autor não se responsabiliza por danos decorrentes de qualquer uso, inclusive não
+   autorizado.
+
+7. Esta obra é protegida pela Lei nº 9.610/1998 (direitos autorais) e pela Lei nº 9.609/1998
+   (programa de computador). O uso não autorizado sujeita o infrator às sanções civis e
+   penais cabíveis.
+
+Pedidos de autorização: contato pelo perfil do autor no GitHub (@RodrigoFass).
+
+
+ENGLISH SUMMARY
+
+Copyright (c) 2026 Rodrigo Fassarella Leite. All rights reserved. This repository is public
+for viewing and academic evaluation only. No license is granted. Without the author's prior
+written permission, you may not use, run, copy, modify, create derivative works from
+(including using it as a basis or reference for similar software), distribute, sell, offer as
+a service, or use this content to train AI models. Third-party components keep their own
+licenses. The Portuguese text above prevails.
