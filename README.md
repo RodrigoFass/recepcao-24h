@@ -61,29 +61,39 @@ seed roda: rode `python seed.py` no dia da apresentação** para as datas ficare
 - `data/exemplo.ics`: um bloqueio de 3 noites na suíte 101 da Maré Alta que **sobrepõe** uma reserva futura (para
   mostrar o alerta de conflito).
 
-### Variáveis de ambiente (todas opcionais)
+### IA sem custo (Gemini)
+
+1. Entre em <https://aistudio.google.com/apikey> com uma conta Google e crie uma chave (gratuita; não precisa de
+   cartão nem de assinatura).
+2. Abra o arquivo `.env` na raiz do projeto e cole a chave depois de `GEMINI_API_KEY=`.
+3. Reinicie o servidor. O chat passa a ser respondido pela IA, com as mesmas regras e ferramentas.
+
+No plano gratuito há limite de requisições por minuto e por dia, e o Google pode usar as conversas para melhorar os
+produtos dele (os dados da demo são fictícios). Se a IA falhar (sem internet ou limite atingido), o bot responde
+pelas regras, sem mostrar erro ao hóspede.
+
+### Variáveis de ambiente (todas opcionais; podem ir no `.env`)
 
 | Variável | Para quê | Padrão |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | Liga o modo IA (Claude com tool use) | sem chave = modo demo |
-| `MODEL` | Modelo usado no modo IA | `claude-haiku-4-5-20251001` |
+| `GEMINI_API_KEY` | Liga o modo IA com o Gemini (plano gratuito) | sem chave = modo demo |
+| `GEMINI_MODEL` | Modelo do Gemini | `gemini-3.5-flash-lite` |
+| `ANTHROPIC_API_KEY` | Liga o modo IA com o Claude (pago); se as duas chaves existirem, usa o Gemini | sem chave = modo demo |
+| `MODEL` | Modelo do Claude | `claude-haiku-4-5-20251001` |
 | `DEMO_MODE` | `1` força o modo demo mesmo com chave | desligado |
 | `DATABASE_URL` | Outro arquivo SQLite | `sqlite:///data/recepcao24h.db` |
-
-No PowerShell: `$env:ANTHROPIC_API_KEY = "sk-ant-..."`. No Linux/macOS: `export ANTHROPIC_API_KEY=sk-ant-...`.
-O selo no canto superior direito mostra o modo ativo ("Modo demo" ou "Modo IA").
 
 ---
 
 ## Roteiro da demo (2 minutos)
 
-Antes: `python seed.py` e suba o servidor. O roteiro também aparece na tela inicial, com as datas já calculadas.
+Antes: `python seed.py` e suba o servidor. A pergunta de vaga com as datas certas está nas perguntas rápidas do chat.
 
 1. **Chat da Maré Alta**: "aceita pet?" → sim, até 10 kg, R$ 50. **Chat da Serra Verde**: a mesma pergunta → não
    aceita. Mesma plataforma, respostas diferentes: cada hotel só enxerga os próprios dados.
 2. **"Tem vaga de [sexta] a [domingo]?"** (datas de ~2 semanas à frente, no formato dd/mm; há uma pergunta rápida
    pronta no chat) → tipos livres e tarifa base × noites, sem desconto e sem fechar a reserva.
-3. **"Consegue um desconto?"** → o assistente passa para a equipe (o selo muda para "Com a equipe"). Na **tela da
+3. **"Consegue um desconto?"** → o assistente passa para a equipe (o status da conversa muda para "Com a equipe"). Na **tela da
    equipe**, a conversa aparece; responda como equipe e clique em **"Devolver ao bot"**.
 4. Na tela da equipe, **crie uma reserva direta** (com telefone e a caixa de consentimento marcada) → abre a
    **linha do tempo da jornada** → clique em **"Até a próxima mensagem"** algumas vezes → no chat daquele telefone
@@ -139,7 +149,8 @@ escalar, fica em silêncio naquela conversa até a equipe devolvê-la.
   recusa.
 - **Modo IA**: Claude com *tool use*. O prompt leva só os dados e a base do hotel, as últimas 10 mensagens e três
   ferramentas (`consultar_disponibilidade`, `escalar_para_humano`, `registrar_hora_chegada`); o hotel vem da
-  conversa e não é parâmetro da IA. Se a API falhar, a mensagem é respondida pelo modo demo.
+  conversa e não é parâmetro da IA. Com `GEMINI_API_KEY`, o mesmo prompt e as mesmas ferramentas vão para o Gemini
+  (`app/bot/gemini.py`). Se a API falhar, a mensagem é respondida pelo modo demo.
 
 ### Jornada de chegada (M2) e relógio simulado
 
@@ -208,7 +219,8 @@ python -m pytest
 ```
 
 Rodam em modo demo, sem chave e sem internet. Os testes marcados com `llm` repetem os critérios do bot usando a API
-real e só rodam quando `ANTHROPIC_API_KEY` está definida (sem ela, aparecem como "skipped").
+real e só rodam quando `ANTHROPIC_API_KEY` está definida (sem ela, aparecem como "skipped"); os marcados com
+`gemini` fazem o mesmo com `GEMINI_API_KEY`.
 
 ---
 

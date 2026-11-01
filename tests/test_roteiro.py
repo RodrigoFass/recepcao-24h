@@ -12,7 +12,8 @@ def _msg(client, slug, tel, texto):
 
 
 def test_roteiro_da_demo(client, db):
-    assert "Roteiro da demo" in client.get("/").text
+    inicio = client.get("/").text
+    assert "Pousada Maré Alta" in inicio and "Chalés Serra Verde" in inicio
 
     # 1. pet nos dois hotéis
     assert "10 kg" in _msg(client, "mare-alta", "(27) 94444-0001", "aceita pet?")["mensagens"][-1]["texto"]

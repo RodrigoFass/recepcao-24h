@@ -60,13 +60,14 @@ def ics_exemplo(banco_modelo):
 
 
 def pytest_collection_modifyitems(config, items):
-    """Testes @pytest.mark.llm só rodam com ANTHROPIC_API_KEY."""
-    if os.environ.get("ANTHROPIC_API_KEY"):
-        return
-    pular = pytest.mark.skip(reason="sem ANTHROPIC_API_KEY (modo IA não testado)")
-    for item in items:
-        if "llm" in item.keywords:
-            item.add_marker(pular)
+    """Testes @pytest.mark.llm só rodam com ANTHROPIC_API_KEY; @pytest.mark.gemini, com GEMINI_API_KEY."""
+    for marca, chave in (("llm", "ANTHROPIC_API_KEY"), ("gemini", "GEMINI_API_KEY")):
+        if os.environ.get(chave):
+            continue
+        pular = pytest.mark.skip(reason=f"sem {chave} (modo IA não testado)")
+        for item in items:
+            if marca in item.keywords:
+                item.add_marker(pular)
 
 
 def pytest_sessionfinish(session, exitstatus):

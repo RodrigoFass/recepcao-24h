@@ -74,7 +74,7 @@
     if (!dados.mensagens.length) {
       const vazio = document.createElement("p");
       vazio.className = "vazio";
-      vazio.textContent = "Nenhuma mensagem ainda. Mande uma pergunta como se fosse o hóspede.";
+      vazio.textContent = "Nenhuma mensagem ainda.";
       lista.appendChild(vazio);
     }
     dados.mensagens.forEach((m) => lista.appendChild(bolha(m)));

@@ -30,9 +30,6 @@
       <span class="relogio" title="Relógio simulado (controles na tela da equipe)">
         <small>relógio simulado</small>{{ agora|dia_semana }} {{ agora|data_br }}
       </span>
-      <span class="selo selo-{{ modo_bot }}" title="{{ 'Respostas pela API da Anthropic' if modo_bot == 'ia' else 'Respostas por regras e busca na base, sem IA' }}">
-        Modo {{ 'IA' if modo_bot == 'ia' else 'demo' }}
-      </span>
     </div>
   </div>
 </header>

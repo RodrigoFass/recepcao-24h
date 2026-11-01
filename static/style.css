@@ -55,9 +55,6 @@ code { background: #eef0f3; padding: 0.1rem 0.35rem; border-radius: 4px; font-si
 .seletor-hotel { font-weight: 600; }
 .relogio { display: flex; flex-direction: column; font-variant-numeric: tabular-nums; font-weight: 600; line-height: 1.1; }
 .relogio small { font-weight: 400; color: var(--suave); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
-.selo { font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.6rem; border-radius: 999px; }
-.selo-demo { background: var(--atencao-claro); color: var(--atencao); }
-.selo-ia { background: var(--ok-claro); color: var(--ok); }
 
 /* ---------- estrutura */
 .conteudo { max-width: 1280px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }

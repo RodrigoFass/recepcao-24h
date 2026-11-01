@@ -6,7 +6,7 @@ from fastapi import HTTPException, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from app import bot, formatacao, relogio
+from app import formatacao, relogio
 from app.models import Hotel
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -80,7 +80,6 @@ def render(request: Request, db, nome: str, hotel: Hotel | None = None, pagina: 
         "hoteis": db.query(Hotel).order_by(Hotel.id).all(),
         "agora": agora,
         "hoje": agora.date(),
-        "modo_bot": bot.modo(),
         "pagina": pagina,
         "msg": request.query_params.get("msg"),
         "erro": request.query_params.get("erro"),

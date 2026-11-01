@@ -108,6 +108,7 @@ def test_falha_da_api_cai_no_modo_demo(db, monkeypatch):
         raise llm.anthropic.APIConnectionError(request=None)
 
     monkeypatch.setenv("ANTHROPIC_API_KEY", "teste")
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.setenv("DEMO_MODE", "0")
     monkeypatch.setattr(llm.anthropic, "Anthropic", lambda **kw: SimpleNamespace(messages=SimpleNamespace(create=quebra)))
     assert bot.modo() == "ia"
@@ -117,6 +118,7 @@ def test_falha_da_api_cai_no_modo_demo(db, monkeypatch):
 
 def test_modo_demo_sem_chave(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("DEMO_MODE", raising=False)
     assert bot.modo() == "demo"
     monkeypatch.setenv("ANTHROPIC_API_KEY", "x")

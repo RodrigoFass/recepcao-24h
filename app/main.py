@@ -3,17 +3,14 @@
 Subir o servidor:  uvicorn app.main:app --reload
 """
 from contextlib import asynccontextmanager
-from datetime import timedelta
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 
 from app import db as banco
-from app import relogio
 from app.db import get_db
 from app.models import Hotel, Reserva, Unidade
 from app.rotas import cadastro, chat, equipe, ical, painel, reservas
-from app.servicos.disponibilidade import proxima_sexta
 from app.web import RAIZ, render
 
 
@@ -37,9 +34,8 @@ def inicio(request: Request, db=Depends(get_db)):
         }
         for h in hoteis
     }
-    sexta = proxima_sexta(relogio.hoje(db)) + timedelta(days=7)
     return render(request, db, "index.html", hotel=hoteis[0] if hoteis else None, pagina="inicio",
-                  lista_hoteis=hoteis, resumo=resumo, sexta_demo=sexta, domingo_demo=sexta + timedelta(days=2))
+                  lista_hoteis=hoteis, resumo=resumo)
 
 
 app.include_router(chat.router)

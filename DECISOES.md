@@ -74,3 +74,7 @@ Uma linha por decisão (as mais simples que atendem ao `CLAUDE.md`).
 - Bot demo: similaridade mínima para erro de digitação subiu de 0,85 para 0,88 ("entrada" deixou de casar com "estrada").
 - Validação: a bateria de controle (`perguntas_controle.csv`) foi escrita depois dos ajustes e não é usada para ajustar o bot; o teste só exige que ela não piore (≥ 28/30).
 - Seed: reservas em andamento e futuras ganham a jornada; o que já venceu entra no chat com o horário original, e quem já recebeu a pergunta do horário "responde" (para o seed não começar com alertas de sem resposta).
+- IA sem custo: o modo IA também funciona com o Gemini no plano gratuito da API (`GEMINI_API_KEY`, modelo padrão `gemini-3.5-flash-lite`: o 2.5 não está disponível para contas novas, o 3.8 não respondeu no plano gratuito (timeout) e o 3.6 só aceita 5 chamadas/min; o lite aceita 15/min e passou nos testes reais), com o mesmo prompt e as mesmas três ferramentas do Claude. Se as duas chaves existirem, usa o Gemini. A produção descrita na E3 continua com o Claude Haiku 4.5.
+- Chaves no arquivo `.env` da raiz (lido na inicialização, fora do git); variável já definida no ambiente vale mais.
+- Se a IA falhar (sem internet, limite do plano gratuito), a mensagem é respondida pelas regras, sem aviso ao hóspede.
+- Telas sem marcas de protótipo: saíram o selo "Modo demo/IA", o roteiro da tela inicial, "(M0)" no cadastro, a dica "o chat simula o WhatsApp" e a pergunta rápida da faculdade. O roteiro fica só no README; o relógio simulado continua (é o que entrega a jornada).

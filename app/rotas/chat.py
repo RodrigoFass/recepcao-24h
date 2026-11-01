@@ -65,7 +65,6 @@ def sugestoes(hoje) -> list[str]:
         "Consegue um desconto?",
         "Chego às 23h",
         "Você é humano?",
-        "Me ajuda a fazer meu trabalho da faculdade?",
     ]
 
 
