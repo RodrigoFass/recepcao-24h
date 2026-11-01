@@ -1,15 +1,16 @@
 """Tela da equipe: conversas escaladas, chegadas e saídas, alertas, valores
-pendentes, reserva direta e controles do relógio simulado."""
+pendentes e reserva direta. Só a conta do hotel (ou a administração) acessa."""
 from datetime import date, timedelta
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 
 from app import relogio
 from app.db import get_db
-from app.formatacao import data_br, ler_moeda
+from app.auth import hotel_do_usuario
+from app.formatacao import ler_moeda
 from app.models import Alerta, CalendarioExterno, Canal, Conversa, Reserva, TipoAcomodacao, Unidade
-from app.servicos import conversas, jornada, reservas
-from app.web import obter_hotel, redirecionar, render
+from app.servicos import conversas, reservas
+from app.web import redirecionar, render
 
 router = APIRouter()
 
@@ -30,13 +31,13 @@ def _link_referencia(db, hotel, referencia: str | None) -> str | None:
     if tipo == "conversa":
         conv = db.get(Conversa, int(ident))
         if conv and conv.hotel_id == hotel.id:
-            return f"/chat?hotel={hotel.slug}&telefone={conv.telefone}"
+            return f"/equipe?hotel={hotel.slug}#conversas"
     return None
 
 
 @router.get("/equipe")
 def tela_equipe(request: Request, hotel: str | None = None, db=Depends(get_db)):
-    h = obter_hotel(db, hotel)
+    h = hotel_do_usuario(request, db, hotel)
     hoje = relogio.hoje(db)
     escaladas = (
         db.query(Conversa).filter_by(hotel_id=h.id, status="humano").order_by(Conversa.atualizada_em.desc()).all()
@@ -79,7 +80,6 @@ def tela_equipe(request: Request, hotel: str | None = None, db=Depends(get_db)):
         unidades=db.query(Unidade).filter_by(hotel_id=h.id, ativa=True).order_by(Unidade.id).all(),
         canais_diretos=[c for c in db.query(Canal).filter_by(hotel_id=h.id).order_by(Canal.id) if c.direto],
         canais_ota=[c for c in db.query(Canal).filter_by(hotel_id=h.id).order_by(Canal.id) if not c.direto],
-        proximo_evento=jornada.proximo_evento(db, hotel_id=h.id),
         calendarios=db.query(CalendarioExterno).filter_by(hotel_id=h.id)
         .order_by(CalendarioExterno.ultima_sincronizacao.desc()).all(),
         assinatura=assinatura_pendencias(db, h),
@@ -97,15 +97,16 @@ def assinatura_pendencias(db, hotel) -> str:
 
 
 @router.get("/api/equipe/pendencias")
-def api_pendencias(hotel: str, db=Depends(get_db)):
-    return {"assinatura": assinatura_pendencias(db, obter_hotel(db, hotel))}
+def api_pendencias(request: Request, hotel: str | None = None, db=Depends(get_db)):
+    return {"assinatura": assinatura_pendencias(db, hotel_do_usuario(request, db, hotel))}
 
 
 # ------------------------------------------------------------------ conversas
 
 @router.post("/equipe/conversas/{conversa_id}/responder")
-def responder(conversa_id: int, hotel: str = Form(...), texto: str = Form(...), db=Depends(get_db)):
-    h = obter_hotel(db, hotel)
+def responder(request: Request, conversa_id: int, hotel: str | None = Form(None), texto: str = Form(...),
+              db=Depends(get_db)):
+    h = hotel_do_usuario(request, db, hotel)
     conv = _conversa(db, h, conversa_id)
     if texto.strip():
         conversas.responder_como_equipe(db, conv, texto)
@@ -113,16 +114,16 @@ def responder(conversa_id: int, hotel: str = Form(...), texto: str = Form(...), 
 
 
 @router.post("/equipe/conversas/{conversa_id}/devolver")
-def devolver(conversa_id: int, hotel: str = Form(...), db=Depends(get_db)):
-    h = obter_hotel(db, hotel)
+def devolver(request: Request, conversa_id: int, hotel: str | None = Form(None), db=Depends(get_db)):
+    h = hotel_do_usuario(request, db, hotel)
     conversas.devolver_ao_bot(db, _conversa(db, h, conversa_id))
     _resolver_alertas(db, h, f"conversa:{conversa_id}", "escalonamento")
     return redirecionar("/equipe", hotel=h.slug, msg="Conversa devolvida ao assistente virtual.")
 
 
 @router.post("/equipe/conversas/{conversa_id}/encerrar")
-def encerrar(conversa_id: int, hotel: str = Form(...), db=Depends(get_db)):
-    h = obter_hotel(db, hotel)
+def encerrar(request: Request, conversa_id: int, hotel: str | None = Form(None), db=Depends(get_db)):
+    h = hotel_do_usuario(request, db, hotel)
     conversas.encerrar(db, _conversa(db, h, conversa_id))
     _resolver_alertas(db, h, f"conversa:{conversa_id}", "escalonamento")
     return redirecionar("/equipe", hotel=h.slug, msg="Conversa encerrada.")
@@ -137,8 +138,8 @@ def _resolver_alertas(db, hotel, referencia: str, tipo: str):
 # ------------------------------------------------------------------ alertas e valores
 
 @router.post("/equipe/alertas/{alerta_id}/resolver")
-def resolver_alerta(alerta_id: int, hotel: str = Form(...), db=Depends(get_db)):
-    h = obter_hotel(db, hotel)
+def resolver_alerta(request: Request, alerta_id: int, hotel: str | None = Form(None), db=Depends(get_db)):
+    h = hotel_do_usuario(request, db, hotel)
     alerta = db.get(Alerta, alerta_id)
     if alerta is None or alerta.hotel_id != h.id:
         raise HTTPException(404, "Alerta não encontrado neste hotel.")
@@ -148,9 +149,9 @@ def resolver_alerta(alerta_id: int, hotel: str = Form(...), db=Depends(get_db)):
 
 
 @router.post("/equipe/reservas/{reserva_id}/valor")
-def completar_valor(reserva_id: int, hotel: str = Form(...), valor: str = Form(""), voltar: str = Form("/equipe"),
-                    db=Depends(get_db)):
-    h = obter_hotel(db, hotel)
+def completar_valor(request: Request, reserva_id: int, hotel: str | None = Form(None), valor: str = Form(""),
+                    voltar: str = Form("/equipe"), db=Depends(get_db)):
+    h = hotel_do_usuario(request, db, hotel)
     reserva = db.get(Reserva, reserva_id)
     if reserva is None or reserva.hotel_id != h.id:
         raise HTTPException(404, "Reserva não encontrada neste hotel.")
@@ -169,7 +170,8 @@ def completar_valor(reserva_id: int, hotel: str = Form(...), valor: str = Form("
 
 @router.post("/equipe/reservas")
 def criar_reserva_direta(
-    hotel: str = Form(...),
+    request: Request,
+    hotel: str | None = Form(None),
     nome: str = Form(...),
     telefone: str = Form(""),
     email: str = Form(""),
@@ -182,7 +184,7 @@ def criar_reserva_direta(
     valor: str = Form(""),
     db=Depends(get_db),
 ):
-    h = obter_hotel(db, hotel)
+    h = hotel_do_usuario(request, db, hotel)
     try:
         ci, co = date.fromisoformat(check_in), date.fromisoformat(check_out)
         canal = db.get(Canal, canal_id)
@@ -215,29 +217,3 @@ def criar_reserva_direta(
         db.rollback()
         return redirecionar("/equipe", hotel=h.slug, erro=f"Reserva não criada: {erro}")
     return redirecionar(f"/reservas/{reserva.id}", msg="Reserva direta criada. Veja a jornada de mensagens abaixo.")
-
-
-# ------------------------------------------------------------------ relógio simulado
-
-@router.post("/relogio/avancar")
-def avancar_relogio(
-    hotel: str = Form(...),
-    passo: str = Form(...),
-    reserva_id: int | None = Form(None),
-    voltar: str = Form("/equipe"),
-    db=Depends(get_db),
-):
-    h = obter_hotel(db, hotel)
-    destino = voltar if voltar.startswith("/") else "/equipe"
-    if passo == "1h":
-        novo = relogio.avancar(db, timedelta(hours=1))
-    elif passo == "1d":
-        novo = relogio.avancar(db, timedelta(days=1))
-    elif passo == "proxima":
-        evento = jornada.proximo_evento(db, hotel_id=h.id, reserva_id=reserva_id)
-        if evento is None:
-            return redirecionar(destino, hotel=h.slug, erro="Não há mensagens agendadas pela frente.")
-        novo = relogio.avancar_ate(db, evento)
-    else:
-        raise HTTPException(400, "Passo inválido.")
-    return redirecionar(destino, hotel=h.slug, msg=f"Relógio simulado em {data_br(novo)}.")

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Entrar{% endblock %}
+{% block conteudo %}
+<section class="cartao entrar">
+  <h1>Entrar</h1>
+  <p class="suave">Acesso da equipe do hotel.</p>
+  {% if erro_login %}<div class="aviso aviso-erro">{{ erro_login }}</div>{% endif %}
+  <form method="post" action="/entrar">
+    <label class="campo">Usuário <input name="login" value="{{ login or '' }}" autocomplete="username" autocapitalize="none" required autofocus></label>
+    <label class="campo">Senha <input name="senha" type="password" autocomplete="current-password" required></label>
+    <button class="botao">Entrar</button>
+  </form>
+</section>
+{% endblock %}

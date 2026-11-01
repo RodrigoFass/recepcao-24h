@@ -13,6 +13,7 @@ from pathlib import Path
 
 from app import db as banco
 from app import relogio
+from app.auth import hash_senha
 from app.bot import textos
 from app.models import (
     Alerta,
@@ -105,7 +106,8 @@ HOTEIS = [
                 "(10 min de carro) e passeios de barco saindo do píer (15 min de carro)."
             ),
         },
-        "equipe": ("Carla Mendes", "gerente", "(27) 99000-0199"),
+        # acesso da equipe: usuário e senha de teste (fictícios, documentados no README)
+        "equipe": ("Carla Mendes", "gerente", "(27) 99000-0199", "marealta", "mare1234"),
     },
     {
         "hotel": dict(
@@ -171,7 +173,7 @@ HOTEIS = [
                 "queijarias. O centro de Domingos Martins fica a 20 min de carro."
             ),
         },
-        "equipe": ("Joaquim Rocha", "proprietário", "(27) 99000-0299"),
+        "equipe": ("Joaquim Rocha", "proprietário", "(27) 99000-0299", "serraverde", "serra1234"),
     },
 ]
 
@@ -260,8 +262,9 @@ class GeradorHotel:
         for un in self.unidades:
             self.ocupado[un.id] = set()
         gerar_base(db, self.hotel, cfg["respostas"], self.agora - timedelta(days=20))
-        nome, papel, contato = cfg["equipe"]
-        db.add(UsuarioEquipe(hotel_id=self.hotel.id, nome=nome, papel=papel, contato_alerta=contato))
+        nome, papel, contato, login, senha = cfg["equipe"]
+        db.add(UsuarioEquipe(hotel_id=self.hotel.id, nome=nome, papel=papel, contato_alerta=contato,
+                             login=login, senha_hash=hash_senha(senha)))
 
     # ---- auxiliares
     def novo_telefone(self) -> str:
@@ -315,8 +318,9 @@ class GeradorHotel:
 
         tipo = un.tipo
         valor = valor_sugerido(tipo.tarifa_base, ci, co)
-        if not direto and random.random() < 0.2:
-            valor = None  # o iCal não traz valor: fica pendente
+        sorteio = random.random() if not direto else 1.0
+        if sorteio < 0.4 and ci >= self.hoje:
+            valor = None  # o iCal não traz valor: fica pendente até chegar o CSV da OTA (só nas reservas futuras)
         codigo = None
         if canal_tipo == "airbnb":
             codigo = "HM" + "".join(random.choices("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", k=8))
@@ -614,6 +618,9 @@ def gerar(agora: datetime | None = None, arquivo_ics: Path | None = ARQUIVO_ICS,
             agora = relogio.agora(db)
         else:
             relogio.definir(db, agora)
+        # a empresa da Recepção 24h: cadastra os hotéis e vê a lista de clientes (senha de teste)
+        db.add(UsuarioEquipe(hotel_id=None, nome="Administração", papel="admin", contato_alerta=None,
+                             login="admin", senha_hash=hash_senha("admin1234")))
         telefones: set[str] = set()
         geradores = []
         for i, cfg in enumerate(HOTEIS):
@@ -649,7 +656,8 @@ def gerar(agora: datetime | None = None, arquivo_ics: Path | None = ARQUIVO_ICS,
             escrever_exemplo_ics(geradores[0].reserva_exemplo_ics, agora, arquivo_ics)
 
     if not silencioso:
-        print(f"Banco recriado. Hoje (relógio simulado): {agora:%d/%m/%Y %H:%M}")
+        print(f"Banco recriado. Hoje: {agora:%d/%m/%Y %H:%M}")
+        print("  Acessos: admin/admin1234 · marealta/mare1234 · serraverde/serra1234")
         for slug, r in resumo.items():
             print(
                 f"  {slug}: {r['reservas']} reservas ({r['futuras']} a partir de hoje), "

@@ -1,9 +1,7 @@
-// Chat do hóspede: carrega a conversa pela API, envia mensagens e atualiza a cada 3 s
+// Atendimento do hóspede: carrega a conversa pela API, envia mensagens e atualiza a cada 3 s
 (function () {
   const hotel = window.HOTEL;
-  const seletor = document.getElementById("contato");
-  const caixaNovo = document.getElementById("caixa-novo");
-  const telNovo = document.getElementById("tel-novo");
+  const campoTel = document.getElementById("telefone");
   const lista = document.getElementById("mensagens");
   const status = document.getElementById("status");
   const info = document.getElementById("info-hospede");
@@ -18,20 +16,16 @@
     return `(27) 9${n.slice(0, 4)}-${n.slice(4)}`;
   }
 
-  function lerNovo() {
-    try { return sessionStorage.getItem("novo-contato-" + hotel); } catch (e) { return null; }
+  function lerTelefone() {
+    try { return sessionStorage.getItem("telefone-" + hotel); } catch (e) { return null; }
   }
 
-  function gravarNovo(valor) {
-    try { sessionStorage.setItem("novo-contato-" + hotel, valor); } catch (e) { /* sem storage */ }
+  function gravarTelefone(valor) {
+    try { sessionStorage.setItem("telefone-" + hotel, valor); } catch (e) { /* sem storage */ }
   }
 
   function telefoneAtual() {
-    return seletor.value === "__novo" ? telNovo.value.trim() : seletor.value;
-  }
-
-  function atualizarCaixaNovo() {
-    caixaNovo.hidden = seletor.value !== "__novo";
+    return campoTel.value.trim();
   }
 
   function bolha(m) {
@@ -115,12 +109,11 @@
     }
   }
 
-  function trocarContato() {
-    atualizarCaixaNovo();
+  function trocarTelefone() {
+    gravarTelefone(telefoneAtual());
     assinatura = "";
     const url = new URL(window.location);
-    if (seletor.value === "__novo") url.searchParams.delete("telefone");
-    else url.searchParams.set("telefone", seletor.value);
+    url.searchParams.set("telefone", telefoneAtual());
     history.replaceState(null, "", url);
     carregar();
   }
@@ -132,13 +125,10 @@
     enviar(texto);
     campo.focus();
   });
-  document.querySelectorAll(".chip").forEach((b) => b.addEventListener("click", () => enviar(b.dataset.texto)));
-  seletor.addEventListener("change", trocarContato);
-  telNovo.addEventListener("change", () => { gravarNovo(telNovo.value.trim()); assinatura = ""; carregar(); });
+  campoTel.addEventListener("change", trocarTelefone);
 
-  telNovo.value = lerNovo() || numeroAleatorio();
-  gravarNovo(telNovo.value);
-  atualizarCaixaNovo();
+  if (!campoTel.value) campoTel.value = lerTelefone() || numeroAleatorio();
+  gravarTelefone(campoTel.value);
   carregar();
   setInterval(carregar, 3000);
 })();

@@ -1,7 +1,8 @@
 """Calendário (M3): exportação de um .ics por unidade e importação pela tela da equipe."""
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 
+from app.auth import hotel_do_usuario
 from app.db import get_db
 from app.models import Canal, Unidade
 from app.servicos import ical
@@ -27,13 +28,14 @@ def exportar(slug: str, arquivo: str, db=Depends(get_db)):
 
 @router.post("/equipe/ical/importar")
 async def importar(
-    hotel: str = Form(...),
+    request: Request,
+    hotel: str | None = Form(None),
     unidade_id: int = Form(...),
     canal_id: int = Form(...),
     arquivo: UploadFile = File(...),
     db=Depends(get_db),
 ):
-    h = obter_hotel(db, hotel)
+    h = hotel_do_usuario(request, db, hotel)
     unidade = db.get(Unidade, unidade_id)
     canal = db.get(Canal, canal_id)
     if unidade is None or unidade.hotel_id != h.id or canal is None or canal.hotel_id != h.id:

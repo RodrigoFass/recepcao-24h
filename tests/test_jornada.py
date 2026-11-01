@@ -182,18 +182,21 @@ def test_nota_baixa_gera_alerta_e_convite_vai_para_todos(db, manha):
     assert "desconto" not in resposta.lower() and "cupom" not in resposta.lower()
 
 
-def test_proxima_mensagem_pela_tela(client, db, manha):
+def test_agendador_envia_sozinho_o_que_venceu(client, db, manha):
+    from app.main import processar_vencidas
+
     tel = "(27) 96666-0008"
     hotel, r = _nova_reserva(db, "mare-alta", 9, telefone=tel)
     alvo = _etapas(r)["boas_vindas"].enviar_em
     assert jornada.proximo_evento(db, reserva_id=r.id) == alvo
-    resp = client.post(
-        "/relogio/avancar",
-        data={"hotel": "mare-alta", "passo": "proxima", "reserva_id": r.id, "voltar": f"/reservas/{r.id}"},
-        follow_redirects=False,
-    )
-    assert resp.status_code == 303
-    assert relogio.agora(db) >= alvo
+    relogio.definir(db, alvo - timedelta(minutes=1))  # o tempo passa, sem ninguém apertar nada
+    processar_vencidas()
+    db.expire_all()
+    assert _etapas(r)["boas_vindas"].status == "pendente"  # ainda não venceu
+    relogio.definir(db, alvo + timedelta(minutes=1))
+    processar_vencidas()
+    db.expire_all()
+    assert _etapas(r)["boas_vindas"].status == "enviada"
     dados = client.get("/api/conversa", params={"hotel": "mare-alta", "telefone": tel}).json()
     assert "Faltam 3 dias" in dados["mensagens"][-1]["texto"]
     pagina = client.get(f"/reservas/{r.id}").text

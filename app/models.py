@@ -240,13 +240,24 @@ class Alerta(Base):
 
 
 class UsuarioEquipe(Base):
+    """Conta de acesso. Usuário de hotel: vê só o próprio hotel. Administrador
+    (papel "admin", sem hotel): é a empresa da Recepção 24h, que cadastra os hotéis."""
+
     __tablename__ = "usuario_equipe"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    hotel_id: Mapped[int] = mapped_column(ForeignKey("hotel.id"), index=True)
+    hotel_id: Mapped[int | None] = mapped_column(ForeignKey("hotel.id"), index=True)
     nome: Mapped[str] = mapped_column(String(120))
     papel: Mapped[str] = mapped_column(String(40))
     contato_alerta: Mapped[str | None] = mapped_column(String(60))
+    login: Mapped[str | None] = mapped_column(String(60), unique=True)
+    senha_hash: Mapped[str | None] = mapped_column(String(200))
+
+    hotel: Mapped[Hotel | None] = relationship()
+
+    @property
+    def admin(self):
+        return self.papel == "admin"
 
 
 class Configuracao(Base):

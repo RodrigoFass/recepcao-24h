@@ -52,9 +52,10 @@ code { background: #eef0f3; padding: 0.1rem 0.35rem; border-radius: 4px; font-si
 .menu a:hover { background: var(--fundo); color: var(--texto); }
 .menu a.ativo { background: var(--primaria-clara); color: var(--primaria-escura); }
 .topo-dir { margin-left: auto; display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
-.seletor-hotel { font-weight: 600; }
-.relogio { display: flex; flex-direction: column; font-variant-numeric: tabular-nums; font-weight: 600; line-height: 1.1; }
-.relogio small { font-weight: 400; color: var(--suave); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.topo-dir form { margin: 0; }
+.menu-sep { align-self: center; color: var(--texto); font-weight: 700; padding: 0 0.4rem 0 0.9rem; border-left: 1px solid var(--borda); margin-left: 0.4rem; }
+.conta-nome { display: flex; flex-direction: column; text-align: right; font-weight: 600; line-height: 1.15; }
+.conta-nome small { font-weight: 400; color: var(--suave); font-size: 0.78rem; }
 
 /* ---------- estrutura */
 .conteudo { max-width: 1280px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
@@ -119,20 +120,22 @@ legend { font-weight: 700; padding: 0 0.4rem; }
 .intro p { font-size: 1.05rem; }
 .grade-hoteis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 1rem; }
 .hotel-cartao p { margin: 0.2rem 0; }
-.hotel-cartao.novo { border-style: dashed; box-shadow: none; }
-.roteiro { margin-top: 1.5rem; max-width: 900px; }
-.roteiro ol { margin: 0; padding-left: 1.3rem; }
-.roteiro li { margin-bottom: 0.45rem; }
+.fale-hotel { max-width: 760px; margin-bottom: 1rem; }
+.entrar { max-width: 380px; margin: 3rem auto; }
+.entrar h1 { margin-top: 0; }
+.entrar .botao { width: 100%; margin-top: 0.3rem; }
+.entrar .aviso { margin: 0 0 0.8rem; }
 
 /* ---------- chat */
-.chat-layout { display: grid; grid-template-columns: 320px minmax(0, 520px); gap: 1.2rem; justify-content: center; align-items: start; }
-.chat-lado select { width: 100%; }
+.chat-hospede { max-width: 520px; margin: 0 auto; }
+.tel-hospede { flex-direction: row; align-items: center; gap: 0.6rem; }
+.tel-hospede input { flex: 1; }
 .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .chip { font: inherit; font-size: 0.82rem; border: 1px solid var(--borda); background: var(--fundo); border-radius: 999px; padding: 0.25rem 0.65rem; cursor: pointer; text-align: left; }
 .chip:hover { background: var(--primaria-clara); border-color: #bcdcdc; }
 a.chip { text-decoration: none; color: inherit; display: inline-block; }
 .chip.ativo { background: var(--primaria-clara); border-color: var(--primaria); color: var(--primaria-escura); font-weight: 600; }
-.celular { background: #e9ebee; border: 1px solid #d6dae0; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; height: calc(100vh - 150px); min-height: 480px; box-shadow: var(--sombra); }
+.celular { background: #e9ebee; border: 1px solid #d6dae0; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; height: calc(100vh - 210px); min-height: 480px; box-shadow: var(--sombra); }
 .celular-topo { background: #fff; padding: 0.7rem 1rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--borda); }
 .celular-titulo { display: flex; flex-direction: column; min-width: 0; }
 .celular-titulo small { color: var(--suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -154,7 +157,7 @@ a.chip { text-decoration: none; color: inherit; display: inline-block; }
 .composer { display: flex; gap: 0.5rem; padding: 0.6rem; background: #fff; border-top: 1px solid var(--borda); }
 .composer input { flex: 1; border-radius: 999px; padding: 0.5rem 0.9rem; }
 .composer .botao { border-radius: 999px; }
-@media (max-width: 900px) { .chat-layout { grid-template-columns: 1fr; } .celular { height: 75vh; order: -1; } }
+@media (max-width: 900px) { .celular { height: 75vh; } }
 
 /* ---------- equipe */
 .conversa-escalada { border: 1px solid var(--borda); border-radius: var(--raio); padding: 0.7rem 0.8rem; margin-bottom: 0.8rem; }
@@ -163,9 +166,6 @@ a.chip { text-decoration: none; color: inherit; display: inline-block; }
 .mini-chat .bolha { max-width: 90%; font-size: 0.88rem; }
 .resposta-equipe { display: flex; gap: 0.4rem; }
 .resposta-equipe input { flex: 1; }
-.relogio-controles { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
-.relogio-controles form { margin: 0; }
-.relogio-grande { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 
 /* ---------- linha do tempo */
 .linha-tempo { list-style: none; margin: 0; padding: 0; position: relative; }

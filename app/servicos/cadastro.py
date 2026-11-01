@@ -7,6 +7,7 @@ import re
 from dataclasses import dataclass, field
 
 from app import relogio
+from app.auth import hash_senha
 from app.formatacao import formatar_telefone, hora_br, minutos, normalizar
 from app.models import Canal, Hotel, TipoAcomodacao, Unidade, UsuarioEquipe
 from app.servicos.base_conhecimento import gerar_base
@@ -66,6 +67,8 @@ class DadosHotel:
     wifi_obs: str = ""
     responsavel_nome: str = ""
     responsavel_contato: str = ""
+    login: str = ""
+    senha: str = ""
     tipos: list[DadosTipo] = field(default_factory=list)
     canais: list[DadosCanal] = field(default_factory=list)
     respostas: dict[str, str] = field(default_factory=dict)
@@ -152,6 +155,13 @@ def validar(db, d: DadosHotel) -> list[str]:
             erros.append(f"Capacidade e tarifa base do tipo \"{t.nome}\" precisam ser maiores que zero.")
     if not d.canais:
         erros.append("Marque pelo menos um canal de venda.")
+    login = d.login.strip().lower()
+    if not re.fullmatch(r"[a-z0-9._-]{3,40}", login):
+        erros.append("Defina o usuário de acesso do hotel (3 a 40 letras minúsculas, números, ponto ou hífen).")
+    elif db.query(UsuarioEquipe).filter_by(login=login).first():
+        erros.append(f"O usuário \"{login}\" já está em uso.")
+    if len(d.senha) < 6:
+        erros.append("A senha de acesso precisa ter pelo menos 6 caracteres.")
     return erros
 
 
@@ -204,9 +214,9 @@ def cadastrar_hotel(db, d: DadosHotel) -> Hotel:
             db.add(Unidade(hotel_id=hotel.id, tipo_id=tipo.id, identificacao=ident, ativa=True))
     for c in d.canais:
         db.add(Canal(hotel_id=hotel.id, tipo=c.tipo, comissao_pct=c.comissao_pct, anuncio_por=c.anuncio_por))
-    if d.responsavel_nome.strip():
-        db.add(UsuarioEquipe(hotel_id=hotel.id, nome=d.responsavel_nome.strip(), papel="responsável",
-                             contato_alerta=d.responsavel_contato.strip() or None))
+    db.add(UsuarioEquipe(hotel_id=hotel.id, nome=d.responsavel_nome.strip() or f"Equipe {hotel.nome}",
+                         papel="responsável", contato_alerta=d.responsavel_contato.strip() or None,
+                         login=d.login.strip().lower(), senha_hash=hash_senha(d.senha)))
     respostas = dict(d.respostas)
     if not (respostas.get("pet") or "").strip():
         respostas["pet"] = (

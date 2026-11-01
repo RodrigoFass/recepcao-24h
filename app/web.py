@@ -73,11 +73,13 @@ def obter_hotel(db, slug: str | None) -> Hotel:
 
 
 def render(request: Request, db, nome: str, hotel: Hotel | None = None, pagina: str = "", **ctx):
+    from app.auth import usuario_logado
+
     agora = relogio.agora(db)
     contexto = {
         "request": request,
         "hotel": hotel,
-        "hoteis": db.query(Hotel).order_by(Hotel.id).all(),
+        "conta": usuario_logado(request, db),
         "agora": agora,
         "hoje": agora.date(),
         "pagina": pagina,

@@ -8,7 +8,7 @@
     <h1>Cadastrar hotel</h1>
     <p class="suave">Preencha uma vez: os dados viram a base do assistente virtual, as mensagens da jornada e o painel.</p>
   </div>
-  <button type="button" class="botao secundario" id="preencher-exemplo">Preencher com um exemplo</button>
+  <a class="botao secundario" href="/admin">Voltar para os hotéis</a>
 </div>
 
 {% if erros %}
@@ -120,11 +120,17 @@
     </fieldset>
 
     <fieldset>
-      <legend>Responsável</legend>
+      <legend>Responsável e acesso do hotel</legend>
       <div class="linha-campos">
         <label class="campo">Nome <input name="responsavel_nome" value="{{ v('responsavel_nome') }}"></label>
         <label class="campo">Contato para alertas <input name="responsavel_contato" value="{{ v('responsavel_contato') }}"></label>
       </div>
+      <div class="linha-campos">
+        <label class="campo">Usuário de acesso <input name="login" value="{{ v('login') }}" autocomplete="off" required
+          pattern="[a-z0-9._\-]{3,40}" title="3 a 40 letras minúsculas, números, ponto ou hífen"></label>
+        <label class="campo">Senha <input name="senha" type="password" autocomplete="new-password" minlength="6" required></label>
+      </div>
+      <p class="suave pequeno">Com este usuário a equipe do hotel entra no sistema e vê só os dados deste hotel.</p>
     </fieldset>
   </div>
 
@@ -145,46 +151,4 @@
   </div>
 </div>
 </form>
-{% endblock %}
-{% block scripts %}
-<script>
-// Exemplo fictício para agilizar a demonstração do cadastro
-const EXEMPLO = {
-  nome: "Pousada Recanto do Sol", cidade: "Anchieta (ES)", telefone: "(27) 3000-0303", whatsapp: "(27) 99000-0303",
-  endereco: "Rua dos Coqueiros, 45 – Anchieta/ES (endereço fictício)",
-  checkin_hora: "13:00", checkout_hora: "11:00",
-  early_checkin_permite: true, early_checkin_a_partir: "10:00", early_checkin_preco: "40",
-  late_checkout_permite: true, late_checkout_ate: "13:00", late_checkout_preco: "40",
-  modo_chegada: "recepcao_24h", recepcao_inicio: "", recepcao_fim: "",
-  instrucoes_chegada: "A recepção fica aberta 24 horas: é só se apresentar com um documento com foto.",
-  contato_emergencia: "(27) 99000-0399", link_fnrh: "https://fnrh-digital.exemplo/pre-checkin/recanto-do-sol",
-  wifi_rede: "RecantoDoSol", wifi_senha: "sol2026", wifi_obs: "", aceita_pet: true,
-  tipo_nome_0: "Quarto Standard", tipo_capacidade_0: "2", tipo_tarifa_0: "230", tipo_unidades_0: "1-6",
-  tipo_nome_1: "Quarto Triplo", tipo_capacidade_1: "3", tipo_tarifa_1: "300", tipo_unidades_1: "7-9",
-  canal_airbnb: false, canal_booking: true, comissao_booking: "15", canal_whatsapp: true, comissao_whatsapp: "0",
-  canal_telefone: true, comissao_telefone: "0",
-  responsavel_nome: "Marta Silva", responsavel_contato: "(27) 99000-0399",
-  kb_pet: "Sim! Aceitamos pets de até 15 kg, sem taxa. Pedimos que não subam nas camas.",
-  kb_cafe: "O café da manhã está incluso e é servido das 7h às 10h no salão.",
-  kb_estacionamento: "Temos estacionamento gratuito e coberto, com 8 vagas.",
-  kb_como_chegar: "Ficamos na Rua dos Coqueiros, 45, em Anchieta (ES), a duas quadras da praia central.",
-  kb_chegada_fora_horario: "A recepção funciona 24 horas, então você pode chegar a qualquer hora.",
-  kb_criancas: "Crianças até 6 anos não pagam. Temos berço sem custo.",
-  kb_cancelamento: "Cancelamento grátis até 5 dias antes da chegada. Depois disso, cobramos a primeira diária.",
-  kb_pagamento: "Aceitamos Pix, cartão de crédito (até 3x) e dinheiro.",
-  kb_lazer: "Temos piscina aberta das 8h às 21h e um redário no jardim.",
-  kb_silencio: "Silêncio a partir das 23h.",
-  kb_roupa_cama: "Roupa de cama e toalhas de banho estão incluídas; toalha de piscina na recepção.",
-  kb_turismo: "Perto daqui: praia central (2 quadras), Santuário de Anchieta (5 min de carro) e passeio de escuna.",
-};
-document.getElementById("preencher-exemplo").addEventListener("click", () => {
-  const form = document.getElementById("form-hotel");
-  for (const [nome, valor] of Object.entries(EXEMPLO)) {
-    const campo = form.elements[nome];
-    if (!campo) continue;
-    if (campo.type === "checkbox") campo.checked = !!valor;
-    else campo.value = valor;
-  }
-});
-</script>
 {% endblock %}

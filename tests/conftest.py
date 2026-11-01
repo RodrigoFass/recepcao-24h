@@ -20,6 +20,7 @@ MODELO = PASTA_TMP / "modelo.db"
 ICS_TESTE = PASTA_TMP / "exemplo.ics"
 os.environ["DATABASE_URL"] = f"sqlite:///{MODELO.as_posix()}"
 os.environ["DEMO_MODE"] = "1"
+os.environ["AGENDADOR"] = "0"  # os testes controlam o tempo pelo relógio, sem o agendador em segundo plano
 
 from app import db as banco  # noqa: E402
 import seed  # noqa: E402
@@ -44,14 +45,33 @@ def db(banco_modelo, tmp_path):
     banco.engine.dispose()
 
 
-@pytest.fixture
-def client(db):
+def _cliente(login: str | None, senha: str | None):
     from fastapi.testclient import TestClient
 
     from app.main import app
 
     with TestClient(app) as c:
+        if login:
+            r = c.post("/entrar", data={"login": login, "senha": senha}, follow_redirects=False)
+            assert r.status_code == 303, r.text
         yield c
+
+
+@pytest.fixture
+def client(db):
+    """Logado como a administração (vê todos os hotéis pelo parâmetro ?hotel=)."""
+    yield from _cliente("admin", "admin1234")
+
+
+@pytest.fixture
+def cliente_mare(db):
+    """Logado como a equipe da Pousada Maré Alta."""
+    yield from _cliente("marealta", "mare1234")
+
+
+@pytest.fixture
+def anonimo(db):
+    yield from _cliente(None, None)
 
 
 @pytest.fixture

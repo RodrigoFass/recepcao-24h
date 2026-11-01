@@ -104,7 +104,9 @@ def test_canais_e_valor_pendente(db):
         assert abs(len(diretas) / len(reservas) - direto_esperado) < 0.10
         ota = [r for r in reservas if r.canal.comissao_pct > 0]
         sem_valor = [r for r in ota if r.valor_total is None]
-        assert 0.10 < len(sem_valor) / len(ota) < 0.30
+        # poucas pendências, e só em reservas futuras (o CSV da OTA ainda não chegou)
+        assert 1 <= len(sem_valor) <= 6
+        assert all(r.check_in >= relogio.hoje(db) for r in sem_valor)
         assert all(r.valor_total is not None for r in diretas)
 
 

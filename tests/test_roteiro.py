@@ -4,6 +4,7 @@ from datetime import timedelta
 from app import relogio
 from app.formatacao import normalizar
 from app.models import Canal, Conversa, Hotel, TipoAcomodacao
+from app.servicos import jornada
 from app.servicos.disponibilidade import proxima_sexta
 
 
@@ -50,9 +51,9 @@ def test_roteiro_da_demo(client, db):
     }, follow_redirects=False)
     reserva_id = int(r.headers["location"].split("/")[2].split("?")[0])
     assert "Linha do tempo" in client.get(f"/reservas/{reserva_id}").text
-    for _ in range(3):
-        client.post("/relogio/avancar", data={"hotel": "mare-alta", "passo": "proxima", "reserva_id": reserva_id,
-                                              "voltar": f"/reservas/{reserva_id}"})
+    for _ in range(3):  # o tempo passa e o agendador entrega cada mensagem quando ela vence
+        relogio.avancar_ate(db, jornada.proximo_evento(db, reserva_id=reserva_id))
+        db.commit()
     bot = [m for m in client.get("/api/conversa", params={"hotel": "mare-alta", "telefone": tel}).json()["mensagens"]
            if m["autor"] == "bot"]
     assert len(bot) >= 3

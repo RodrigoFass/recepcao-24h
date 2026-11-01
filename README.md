@@ -50,16 +50,28 @@ Depois, abra <http://localhost:8000>.
 
 ### Dados de exemplo
 
-`python seed.py` apaga e recria o banco (`data/recepcao24h.db`) e zera o relógio simulado. **"Hoje" é a data em que o
-seed roda: rode `python seed.py` no dia da apresentação** para as datas ficarem atuais. O seed cria:
+`python seed.py` apaga e recria o banco (`data/recepcao24h.db`). **"Hoje" é a data em que o seed roda: rode
+`python seed.py` no dia da apresentação** para as datas ficarem atuais. O seed cria:
 
-- 2 hotéis com base de conhecimento de 16 itens cada, 1 usuário da equipe por hotel;
+- 2 hotéis com base de conhecimento de 16 itens cada e o acesso da equipe de cada um;
+- a conta da administração (a empresa da Recepção 24h), que cadastra os hotéis;
 - reservas dos últimos 90 dias (ocupação ~55% na Maré e ~45% na Serra, com sexta e sábado mais cheios) e ~15 nos
   próximos 30 dias, com chegadas hoje e amanhã nos dois hotéis;
 - o **próximo fim de semana lotado na Serra Verde** (para o teste de indisponibilidade);
-- ~20% das reservas de OTA sem valor (pendência), ~10 conversas antigas e ~20 avaliações por hotel;
+- algumas reservas futuras de OTA sem valor (pendência), ~10 conversas antigas e ~20 avaliações por hotel;
 - `data/exemplo.ics`: um bloqueio de 3 noites na suíte 101 da Maré Alta que **sobrepõe** uma reserva futura (para
   mostrar o alerta de conflito).
+
+### Acessos (senhas de teste, todas fictícias)
+
+| Conta | Usuário | Senha | Vê |
+|---|---|---|---|
+| Pousada Maré Alta | `marealta` | `mare1234` | só a Maré Alta: equipe, reservas e painel |
+| Chalés Serra Verde | `serraverde` | `serra1234` | só a Serra Verde |
+| Administração | `admin` | `admin1234` | a lista de hotéis clientes; cadastra hotéis novos |
+
+O atendimento do hóspede (`/chat?hotel=<hotel>`) é público: é o lado do hóspede, que na versão final chega pelo
+WhatsApp do hotel. A tela inicial tem um atalho para cada hotel.
 
 ### IA sem custo (Gemini)
 
@@ -87,27 +99,25 @@ pelas regras, sem mostrar erro ao hóspede.
 
 ## Roteiro da demo (2 minutos)
 
-Antes: `python seed.py` e suba o servidor. A pergunta de vaga com as datas certas está nas perguntas rápidas do chat.
+Antes: `python seed.py` e suba o servidor.
 
-1. **Chat da Maré Alta**: "aceita pet?" → sim, até 10 kg, R$ 50. **Chat da Serra Verde**: a mesma pergunta → não
-   aceita. Mesma plataforma, respostas diferentes: cada hotel só enxerga os próprios dados.
-2. **"Tem vaga de [sexta] a [domingo]?"** (datas de ~2 semanas à frente, no formato dd/mm; há uma pergunta rápida
-   pronta no chat) → tipos livres e tarifa base × noites, sem desconto e sem fechar a reserva.
-3. **"Consegue um desconto?"** → o assistente passa para a equipe (o status da conversa muda para "Com a equipe"). Na **tela da
-   equipe**, a conversa aparece; responda como equipe e clique em **"Devolver ao bot"**.
-4. Na tela da equipe, **crie uma reserva direta** (com telefone e a caixa de consentimento marcada) → abre a
-   **linha do tempo da jornada** → clique em **"Até a próxima mensagem"** algumas vezes → no chat daquele telefone
-   aparecem a confirmação, as boas-vindas com o link da FNRH Digital, a pergunta do horário de chegada etc.
-5. **Painel da Maré Alta**: ocupação por dia da semana (sexta e sábado mais cheios) e receita bruta × líquida por
-   canal (quanto fica com o Airbnb e o Booking).
+1. **Atendimento da Maré Alta** (tela inicial → Pousada Maré Alta): "aceita pet?" → sim, até 10 kg, R$ 50. No da
+   **Serra Verde**, a mesma pergunta → não aceita. Mesma plataforma, respostas diferentes.
+2. **"Tem vaga de [sexta] a [domingo]?"** (datas de ~2 semanas à frente, no formato dd/mm) → tipos livres e tarifa
+   base × noites, sem desconto e sem fechar a reserva.
+3. **"Consegue um desconto?"** → o assistente passa para a equipe. **Entre como a Maré Alta** (`marealta`): na tela
+   da equipe a conversa aparece; responda e clique em **"Devolver ao bot"**.
+4. Na tela da equipe, **crie uma reserva direta para amanhã** (com telefone e consentimento) → a linha do tempo mostra
+   a confirmação, as boas-vindas com o link da FNRH Digital e a pergunta do horário de chegada já enviadas (as
+   etapas seguintes saem sozinhas na hora certa). No atendimento, com o mesmo telefone, aparecem as mensagens.
+5. **Painel**: ocupação por dia da semana (sexta e sábado mais cheios) e receita bruta × líquida por canal.
 
-Extras, se sobrar tempo: responder "chego às 23h" na conversa de quem chega amanhã; importar `data/exemplo.ics` na
-unidade 101 (tela da equipe → Calendário) e ver o alerta de conflito; cadastrar um hotel novo com "Preencher com um
-exemplo" e conversar com ele no chat.
+Extras: responder "chego às 23h" na conversa de quem chega amanhã; importar `data/exemplo.ics` na unidade 101
+(tela da equipe → Calendário) e ver o alerta de conflito; entrar como `admin` e cadastrar um hotel novo.
 
 **Plano B**: sem internet ou sem chave, tudo funciona em modo demo. Há também um vídeo do funcionamento completo
-(este roteiro mais calendário com alerta de conflito e cadastro de hotel novo), com respostas da IA e legendas, em
-[docs/video/demo_recepcao24h.mp4](docs/video/demo_recepcao24h.mp4) (2min18s, sem áudio: dá para narrar por cima), e
+(atendimento, equipe, chegada, calendário com alerta de conflito, painel e cadastro de hotel novo), com respostas da IA, animações e legendas, em
+[docs/video/demo_recepcao24h.mp4](docs/video/demo_recepcao24h.mp4) (4min12s, Full HD, sem áudio: dá para narrar por cima), e
 o PDF com as telas em [docs/](docs/).
 
 Para regravar o vídeo com as datas do dia (precisa do Google Chrome e da chave de IA no `.env`):
@@ -125,12 +135,14 @@ O script cria um banco temporário, sobe o servidor, executa o roteiro sozinho e
 
 | Endereço | O que tem |
 |---|---|
-| `/` | Escolha do hotel e roteiro da demo |
-| `/chat?hotel=mare-alta` | Chat que simula o WhatsApp do hóspede: escolha o telefone (hóspedes com reserva ou "novo contato"), perguntas rápidas e selo mostrando se a conversa está com o assistente ou com a equipe |
-| `/equipe?hotel=mare-alta` | Conversas escaladas (responder, devolver ao bot, encerrar), chegadas e saídas de hoje com hora prevista, alertas abertos, reservas com valor pendente, nova reserva direta, importação/exportação de iCal e controles do relógio simulado |
+| `/` | Apresentação, botão Entrar e o atendimento de cada hotel |
+| `/entrar` | Login (equipe de um hotel ou administração) |
+| `/admin` | Administração: hotéis clientes e cadastro de hotel novo |
+| `/chat?hotel=mare-alta` | Atendimento do hóspede (público; na versão final, o WhatsApp do hotel): número do hóspede e a conversa, com o status "assistente" ou "com a equipe" |
+| `/equipe` | Conversas escaladas (responder, devolver ao bot, encerrar), chegadas e saídas de hoje com hora prevista, alertas abertos, reservas com valor pendente, nova reserva direta e importação/exportação de iCal |
 | `/reservas/<id>` | Dados da reserva e linha do tempo da jornada (etapas, horários e status) |
-| `/hoteis/novo` | Cadastro M0: horários (validados pela Portaria MTur nº 28/2025), políticas, acomodações, canais e as perguntas-modelo que geram a base de conhecimento |
-| `/painel?hotel=mare-alta&inicio=AAAA-MM-DD&fim=AAAA-MM-DD` | Indicadores e gráficos; padrão: últimos 30 dias |
+| `/hoteis/novo` | Cadastro M0 (só a administração): acesso do hotel, horários (validados pela Portaria MTur nº 28/2025), políticas, acomodações, canais e as perguntas-modelo que geram a base de conhecimento |
+| `/painel?inicio=AAAA-MM-DD&fim=AAAA-MM-DD` | Indicadores e gráficos; padrão: últimos 30 dias |
 | `/ical/<hotel>/<unidade>.ics` | iCal de saída de uma unidade (ex.: `/ical/mare-alta/101.ics`) |
 
 ---
@@ -153,7 +165,7 @@ escalar, fica em silêncio naquela conversa até a equipe devolvê-la.
   conversa e não é parâmetro da IA. Com `GEMINI_API_KEY`, o mesmo prompt e as mesmas ferramentas vão para o Gemini
   (`app/bot/gemini.py`). Se a API falhar, a mensagem é respondida pelo modo demo.
 
-### Jornada de chegada (M2) e relógio simulado
+### Jornada de chegada (M2)
 
 Toda reserva gera 6 mensagens: **confirmação** (na hora, com horários, early/late e cancelamento), **boas-vindas**
 com o link da FNRH Digital (3 dias antes, 10h), **horário de chegada** (1 dia antes, 10h), **instruções de entrada**
@@ -161,9 +173,9 @@ com o link da FNRH Digital (3 dias antes, 10h), **horário de chegada** (1 dia a
 **pesquisa** de 1 a 5 (2h depois do check-out). Sem telefone ou consentimento, o texto fica pronto para a equipe
 copiar no chat da OTA. Reserva feita em cima da hora recebe as etapas vencidas logo depois da confirmação.
 
-O relógio do sistema é **simulado**: "Avançar 1 hora", "Avançar 1 dia" e "Até a próxima mensagem" adiantam o relógio
-e entregam no chat as mensagens vencidas. Se o hóspede não informar o horário de chegada em 6h, a pergunta é
-reenviada; mais 6h sem resposta geram um alerta.
+Enquanto o servidor roda, um agendador confere a cada 30 segundos o que já venceu e envia (na produção, papel do
+n8n). Se o hóspede não informar o horário de chegada em 6h, a pergunta é reenviada; mais 6h sem resposta geram um
+alerta. Nos testes, o tempo é controlado por `app/relogio.py` (a variável `AGENDADOR=0` desliga o agendador).
 
 ### Pós-estadia (M4)
 
@@ -232,7 +244,8 @@ app/
   main.py              aplicação FastAPI (monta as rotas)
   web.py               templates Jinja2 e filtros de formatação
   db.py, models.py     SQLAlchemy + SQLite
-  relogio.py           relógio simulado
+  relogio.py           "agora" do sistema (nos testes, dá para adiantar)
+  auth.py              login: senha com PBKDF2, sessão em cookie assinado, um hotel por conta
   formatacao.py        moeda, datas, normalização de texto
   bot/                 textos padrão, modo demo, modo IA (prompt + tool use) e ferramentas
   servicos/            disponibilidade, reservas, jornada, pós-estadia, conversas, indicadores, iCal,
@@ -260,7 +273,8 @@ DECISOES.md            decisões tomadas na construção
 
 ## Fora do escopo
 
-WhatsApp real, integração real com Airbnb/Booking, pagamento, login completo (basta o seletor de hotel) e deploy.
+WhatsApp real, integração real com Airbnb/Booking, pagamento, recuperação de senha, vários usuários por hotel e
+deploy.
 
 ## Licença
 

@@ -2,37 +2,19 @@
 {% block conteudo %}
 <section class="intro">
   <h1>Recepção 24h</h1>
-  <p>Atendimento automático 24h, jornada de chegada, calendário único e indicadores para hotéis e pousadas pequenos.
-    A mesma plataforma atende vários hotéis, com os dados totalmente separados.</p>
-  <p class="nota">Protótipo acadêmico (GMPE · UVV). Os hotéis, hóspedes e reservas são <strong>fictícios</strong>;
-    o WhatsApp e as OTAs são simulados.</p>
+  <p>Atendimento automático 24h com IA, jornada de chegada, calendário único e painel de gestão para pousadas e
+    hotéis pequenos. Cada hotel tem o seu acesso e vê só os próprios dados.</p>
+  <p><a class="botao" href="/entrar">Entrar</a></p>
 </section>
 
-{% if not lista_hoteis %}
-<div class="cartao">
-  <h2>Nenhum hotel cadastrado</h2>
-  <p>Rode <code>python seed.py</code> para criar os hotéis de exemplo, ou <a href="/hoteis/novo">cadastre um hotel</a>.</p>
-</div>
+{% if lista_hoteis %}
+<section class="cartao fale-hotel">
+  <h2>Fale com um hotel</h2>
+  <p class="suave">Atendimento do hóspede pelo assistente virtual de cada hotel (na versão final, pelo WhatsApp do hotel).</p>
+  <div class="acoes">
+    {% for h in lista_hoteis %}<a class="botao secundario" href="/chat?hotel={{ h.slug }}">{{ h.nome }}</a>{% endfor %}
+  </div>
+</section>
 {% endif %}
-
-<div class="grade-hoteis">
-  {% for h in lista_hoteis %}
-  <article class="cartao hotel-cartao">
-    <h2>{{ h.nome }}</h2>
-    <p class="suave">{{ h.cidade }} · {{ resumo[h.id].unidades }} unidades · {{ NOMES_MODO_CHEGADA[h.modo_chegada] }}</p>
-    <p class="suave">Check-in {{ h.checkin_hora|hora_br }} · check-out {{ h.checkout_hora|hora_br }} · {{ resumo[h.id].reservas }} reservas</p>
-    <div class="acoes">
-      <a class="botao" href="/chat?hotel={{ h.slug }}">Chat do hóspede</a>
-      <a class="botao secundario" href="/equipe?hotel={{ h.slug }}">Equipe</a>
-      <a class="botao secundario" href="/painel?hotel={{ h.slug }}">Painel</a>
-    </div>
-  </article>
-  {% endfor %}
-  <article class="cartao hotel-cartao novo">
-    <h2>Novo hotel</h2>
-    <p class="suave">Cadastro: horários, políticas, acomodações, canais e as perguntas-modelo que geram a base
-      de conhecimento. Depois de salvar, o hotel já funciona no chat.</p>
-    <div class="acoes"><a class="botao secundario" href="/hoteis/novo">Cadastrar hotel</a></div>
-  </article>
-</div>
+<p class="nota">Os hotéis, hóspedes e reservas desta versão são fictícios.</p>
 {% endblock %}

@@ -6,7 +6,8 @@ from fastapi import APIRouter, Depends, Request
 from app import relogio
 from app.db import get_db
 from app.servicos.indicadores import calcular
-from app.web import obter_hotel, render
+from app.auth import hotel_do_usuario
+from app.web import render
 
 router = APIRouter()
 
@@ -21,7 +22,7 @@ def _data(texto: str | None, padrao: date) -> date:
 @router.get("/painel")
 def tela_painel(request: Request, hotel: str | None = None, inicio: str | None = None, fim: str | None = None,
                 db=Depends(get_db)):
-    h = obter_hotel(db, hotel)
+    h = hotel_do_usuario(request, db, hotel)
     hoje = relogio.hoje(db)
     fim_d = _data(fim, hoje)
     inicio_d = _data(inicio, fim_d - timedelta(days=29))  # padrão: últimos 30 dias

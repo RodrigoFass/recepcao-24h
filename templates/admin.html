@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}Hotéis clientes{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1>Hotéis clientes</h1>
+    <p class="suave">Cada hotel tem o seu acesso e só enxerga os próprios dados.</p>
+  </div>
+  <a class="botao" href="/hoteis/novo">Cadastrar hotel</a>
+</div>
+
+<div class="grade-hoteis">
+  {% for h in lista_hoteis %}
+  <article class="cartao hotel-cartao">
+    <h2>{{ h.nome }}</h2>
+    <p class="suave">{{ h.cidade }} · {{ resumo[h.id].unidades }} unidades · {{ NOMES_MODO_CHEGADA[h.modo_chegada] }}</p>
+    <p class="suave">{{ resumo[h.id].reservas }} reservas · acesso: {{ resumo[h.id].logins|join(', ') or 'sem usuário' }}</p>
+    <div class="acoes">
+      <a class="botao secundario" href="/equipe?hotel={{ h.slug }}">Equipe</a>
+      <a class="botao secundario" href="/painel?hotel={{ h.slug }}">Painel</a>
+      <a class="botao secundario" href="/chat?hotel={{ h.slug }}">Atendimento do hóspede</a>
+    </div>
+  </article>
+  {% else %}
+  <p class="vazio">Nenhum hotel cadastrado ainda.</p>
+  {% endfor %}
+</div>
+{% endblock %}

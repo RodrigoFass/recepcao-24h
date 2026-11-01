@@ -1,9 +1,9 @@
 """Cadastro M0: formulário de novo hotel."""
 from fastapi import APIRouter, Depends, Request
 
+from app.auth import exigir_admin
 from app.db import get_db
 from app.formatacao import ler_moeda
-from app.models import Hotel
 from app.servicos.base_conhecimento import PERGUNTAS_MODELO
 from app.servicos.cadastro import (
     MODOS_CHEGADA,
@@ -48,8 +48,8 @@ def _contexto(valores: dict, erros: list[str] | None = None):
 
 @router.get("/hoteis/novo")
 def tela_cadastro(request: Request, db=Depends(get_db)):
-    hotel = db.query(Hotel).order_by(Hotel.id).first()
-    return render(request, db, "hotel_novo.html", hotel=hotel, pagina="cadastro", **_contexto(dict(PADRAO)))
+    exigir_admin(request, db)
+    return render(request, db, "hotel_novo.html", pagina="cadastro", **_contexto(dict(PADRAO)))
 
 
 def _ligado(form, chave) -> bool:
@@ -116,6 +116,8 @@ def dados_do_formulario(form) -> DadosHotel:
         wifi_obs=texto("wifi_obs"),
         responsavel_nome=texto("responsavel_nome"),
         responsavel_contato=texto("responsavel_contato"),
+        login=texto("login"),
+        senha=form.get("senha") or "",
         tipos=tipos,
         canais=canais,
         respostas={p["categoria"]: texto(f"kb_{p['categoria']}") for p in PERGUNTAS_MODELO},
@@ -124,20 +126,19 @@ def dados_do_formulario(form) -> DadosHotel:
 
 @router.post("/hoteis/novo")
 async def salvar_cadastro(request: Request, db=Depends(get_db)):
+    exigir_admin(request, db)
     form = await request.form()
     dados = dados_do_formulario(form)
     try:
         hotel = cadastrar_hotel(db, dados)
     except ErroCadastro as erro:
         db.rollback()
-        primeiro = db.query(Hotel).order_by(Hotel.id).first()
-        resposta = render(request, db, "hotel_novo.html", hotel=primeiro, pagina="cadastro",
-                          **_contexto(dict(form), erro.erros))
+        valores = {k: v for k, v in form.items() if k != "senha"}
+        resposta = render(request, db, "hotel_novo.html", pagina="cadastro", **_contexto(valores, erro.erros))
         resposta.status_code = 400
         return resposta
     return redirecionar(
-        "/chat",
-        hotel=hotel.slug,
+        "/admin",
         msg=f"{hotel.nome} cadastrado, com {len(dados.tipos)} tipo(s) de acomodação e a base de conhecimento. "
-        "O assistente virtual já responde por ele.",
+        f"O assistente virtual já responde por ele, e a equipe entra com o usuário \"{dados.login.strip().lower()}\".",
     )

@@ -43,9 +43,6 @@
         {% endif %}
       </table>
       <div class="acoes">
-        {% if reserva.hospede and reserva.hospede.telefone %}
-        <a class="botao" href="/chat?hotel={{ hotel.slug }}&telefone={{ reserva.hospede.telefone|urlencode }}">Abrir a conversa no chat</a>
-        {% endif %}
         {% if reserva.status == 'confirmada' %}
         <form method="post" action="/reservas/{{ reserva.id }}/cancelar" onsubmit="return confirm('Cancelar esta reserva?')">
           <button class="botao perigo">Cancelar reserva</button>
@@ -68,10 +65,6 @@
   </div>
 
   <div class="pilha">
-    {% set voltar = "/reservas/" ~ reserva.id %}
-    {% set reserva_id = reserva.id %}
-    {% include "_relogio.html" %}
-
     <section class="cartao">
       <h2>Linha do tempo da jornada</h2>
       {% if agendadas %}

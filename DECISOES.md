@@ -78,3 +78,8 @@ Uma linha por decisão (as mais simples que atendem ao `CLAUDE.md`).
 - Chaves no arquivo `.env` da raiz (lido na inicialização, fora do git); variável já definida no ambiente vale mais.
 - Se a IA falhar (sem internet, limite do plano gratuito), a mensagem é respondida pelas regras, sem aviso ao hóspede.
 - Telas sem marcas de protótipo: saíram o selo "Modo demo/IA", o roteiro da tela inicial, "(M0)" no cadastro, a dica "o chat simula o WhatsApp" e a pergunta rápida da faculdade. O roteiro fica só no README; o relógio simulado continua (é o que entrega a jornada).
+- Contas: cada hotel entra com usuário e senha e só enxerga os próprios dados (o hotel vem da conta, não do endereço); a administração (a empresa da Recepção 24h) vê a lista de hotéis e é a única que cadastra hotel novo, já criando o acesso dele. Senha com PBKDF2 e sessão em cookie assinado com HMAC, só com a biblioteca padrão (sem dependência nova).
+- O atendimento do hóspede é uma página pública e separada das telas da equipe (na versão final, é o WhatsApp do hotel); saíram a lista de hóspedes e as perguntas prontas.
+- Relógio simulado removido das telas: um agendador envia sozinho, a cada 30 s, as mensagens que venceram. O deslocamento do relógio continua só para os testes.
+- Dados de exemplo mais limpos: só algumas reservas futuras de OTA ficam sem valor (antes ~20% de todas, o que enchia a tela da equipe).
+- Cadastro sem o botão "Preencher com um exemplo"; o vídeo preenche os campos pelo script.

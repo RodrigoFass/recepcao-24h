@@ -6,7 +6,6 @@
     <h1>Equipe · {{ hotel.nome }}</h1>
     <p class="suave">O que precisa de uma pessoa: conversas escaladas, chegadas do dia, alertas e pendências.</p>
   </div>
-  <a class="botao secundario" href="/chat?hotel={{ hotel.slug }}">Abrir o chat do hóspede</a>
 </div>
 <div class="aviso aviso-novidade" id="novidades" hidden>
   Chegou mensagem nova ou um alerta. <a href="/equipe?hotel={{ hotel.slug }}">Atualizar a tela</a>
@@ -49,7 +48,6 @@
             <input type="hidden" name="hotel" value="{{ hotel.slug }}">
             <button class="botao secundario pequeno">Encerrar conversa</button>
           </form>
-          <a class="botao secundario pequeno" href="/chat?hotel={{ hotel.slug }}&telefone={{ c.telefone|urlencode }}">Ver no chat</a>
         </div>
       </article>
       {% else %}
@@ -116,10 +114,6 @@
   </div>
 
   <div class="pilha">
-    {% set voltar = "/equipe" %}
-    {% set reserva_id = None %}
-    {% include "_relogio.html" %}
-
     <section class="cartao" id="hoje">
       <h2>Chegadas de hoje ({{ chegadas|length }})</h2>
       {% if chegadas %}

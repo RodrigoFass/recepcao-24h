@@ -35,6 +35,8 @@ def formulario(**troca):
         "comissao_whatsapp": "0",
         "kb_cafe": "O café da manhã custa R$ 20 e é servido das 7h às 9h30.",
         "kb_cancelamento": "Cancelamento grátis até 3 dias antes.",
+        "login": "hostelteste",
+        "senha": "senha-do-hostel",
     }
     dados.update(troca)
     return dados
@@ -65,7 +67,7 @@ def test_cadastro_recusa_intervalo_maior_que_3h(client, db):
 def test_cadastro_aceita_e_hotel_funciona_no_chat(client, db):
     r = client.post("/hoteis/novo", data=formulario(), follow_redirects=False)
     assert r.status_code == 303, r.text
-    assert r.headers["location"].startswith("/chat?hotel=hostel-teste-centro")
+    assert r.headers["location"].startswith("/admin")
 
     hotel = db.query(Hotel).filter_by(slug="hostel-teste-centro").one()
     assert hotel.checkin_hora == "15:00" and hotel.checkout_hora == "12:00"
