@@ -21,6 +21,12 @@ Anthropic é opcional.
 
 Requisitos: Python 3.11 ou mais novo.
 
+### Windows: duplo clique
+
+Dê duplo clique em **`Abrir Recepcao 24h.cmd`** (na pasta do projeto). Na primeira vez ele prepara o ambiente; depois
+atualiza os dados com a data de hoje, liga o site e abre o navegador em <http://127.0.0.1:8000>. Para desligar, feche a
+janela preta. Precisa do Python instalado e, para a IA, de internet e da chave no `.env`.
+
 ### Windows (PowerShell)
 
 ```powershell
