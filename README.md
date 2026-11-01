@@ -105,11 +105,12 @@ Extras, se sobrar tempo: responder "chego às 23h" na conversa de quem chega ama
 unidade 101 (tela da equipe → Calendário) e ver o alerta de conflito; cadastrar um hotel novo com "Preencher com um
 exemplo" e conversar com ele no chat.
 
-**Plano B**: sem internet ou sem chave, tudo funciona em modo demo. Há também um vídeo desse roteiro, com
-legendas, em [docs/video/demo_recepcao24h.mp4](docs/video/demo_recepcao24h.mp4) (1min09s, sem áudio: dá para
-narrar por cima), e o PDF com as telas em [docs/](docs/).
+**Plano B**: sem internet ou sem chave, tudo funciona em modo demo. Há também um vídeo do funcionamento completo
+(este roteiro mais calendário com alerta de conflito e cadastro de hotel novo), com respostas da IA e legendas, em
+[docs/video/demo_recepcao24h.mp4](docs/video/demo_recepcao24h.mp4) (2min18s, sem áudio: dá para narrar por cima), e
+o PDF com as telas em [docs/](docs/).
 
-Para regravar o vídeo com as datas do dia (precisa do Google Chrome):
+Para regravar o vídeo com as datas do dia (precisa do Google Chrome e da chave de IA no `.env`):
 
 ```powershell
 pip install -r requirements-dev.txt
