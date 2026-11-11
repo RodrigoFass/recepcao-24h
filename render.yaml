@@ -1,0 +1,16 @@
+# Hospedagem gratuita no Render (render.com → New → Blueprint → este repositório).
+# A cada início o seed recria os dados com a data do dia (o disco do plano gratuito não guarda nada).
+services:
+  - type: web
+    name: recepcao-24h
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python seed.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: GEMINI_API_KEY
+        sync: false  # o Render pede a chave na criação; ela não fica no repositório
+      - key: SECRET_KEY
+        generateValue: true

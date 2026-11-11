@@ -21,6 +21,19 @@ Anthropic é opcional.
 
 Requisitos: Python 3.11 ou mais novo.
 
+### Online, sem instalar nada (Render, gratuito)
+
+1. Entre em <https://render.com> com a conta do GitHub.
+2. **New → Blueprint** e escolha este repositório (o `render.yaml` já diz como subir o site).
+3. Quando pedir `GEMINI_API_KEY`, cole a chave gratuita do Gemini e confirme. A primeira subida leva alguns minutos.
+4. O Render mostra o endereço (algo como `https://recepcao-24h.onrender.com`).
+
+No plano gratuito o site "dorme" depois de 15 minutos sem acesso e leva ~1 minuto para acordar: **abra o endereço uns
+2 minutos antes de apresentar**. Cada vez que acorda, os dados de exemplo são recriados com a data do dia.
+
+Reserva: **GitHub Codespaces** (no repositório: Code → Codespaces → Create). O `.devcontainer/` instala tudo, recria
+os dados e abre o site; a chave do Gemini vai em Settings → Codespaces → Secrets como `GEMINI_API_KEY`.
+
 ### Windows: duplo clique
 
 Dê duplo clique em **`Abrir Recepcao 24h.cmd`** (na pasta do projeto). Na primeira vez ele prepara o ambiente; depois

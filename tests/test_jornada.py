@@ -169,7 +169,9 @@ def test_sem_consentimento_gera_texto_para_a_ota(db, manha):
 
 def test_nota_baixa_gera_alerta_e_convite_vai_para_todos(db, manha):
     tel = "(27) 96666-0007"
-    hotel, r = _nova_reserva(db, "serra-verde", 2, noites=1, telefone=tel)
+    # Maré Alta: o seed lota o próximo fim de semana da Serra Verde, e "daqui a 2 dias" cai nele quando o teste
+    # roda numa quarta-feira
+    hotel, r = _nova_reserva(db, "mare-alta", 2, noites=1, telefone=tel)
     relogio.avancar_ate(db, _etapas(r)["pesquisa"].enviar_em)
     _, resposta = receber_mensagem_hospede(db, hotel, tel, "2, o chuveiro estava frio")
     av = db.query(Avaliacao).filter_by(reserva_id=r.id).one()
